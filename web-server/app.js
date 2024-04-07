@@ -17,6 +17,9 @@ import expressAppCreator from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import process from 'process';
+import { readFile } from 'fs/promises';
+
+import formidable, { errors as formidableErrors } from 'formidable';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,16 +43,20 @@ function main() {
     console.log(DEFAULT_START_MESSAGE + application.get('port'));
   });
 
-  application.get('/compute', (request, response) => {
+  application.post('/compute', async (request, response) => {
+    const form = formidable({});
     try {
-      const FILE_CONTENT = request.body();
-      console.log('File content: ' + FILE_CONTENT);
-      res.json({
-        answer: FILE_CONTENT,
-      });
+        const files = await form.parse(request);
+        const FILE_CONTENT = await readFile(files.file[0].filepath, 'utf-8');
+        // ... validate js, check for main(), execute main(), receive result and send back
 
-    } catch (error) {
-      response.status(500).send('Internal server error for POST to /compute');
+        response.writeHead(200, { 'Content-Type': 'text/plain' });
+        response.end(String(FILE_CONTENT));
+    } catch (err) {
+        console.error(err);
+        response.writeHead(err.httpCode || 400, { 'Content-Type': 'text/plain' });
+        response.end(String(err));
+        return;
     }
   });
 }
