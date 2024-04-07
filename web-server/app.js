@@ -26,15 +26,31 @@ const __dirname = path.dirname(__filename);
  */
 function main() {
   const application = expressAppCreator();
+
   application.set('port', 8080);
+
   const PATH_TO_ROOT = path.join(__dirname, '../www');
   const PATH_TO_SRC = path.join(__dirname, '../src');
   application.use(expressAppCreator.static(PATH_TO_ROOT));
   application.use(expressAppCreator.static(PATH_TO_SRC));
+
   application.listen(application.get('port'), '0.0.0.0', function() {
     const DEFAULT_START_MESSAGE =
         'The server is running on http://<your machine IP addr>:';
     console.log(DEFAULT_START_MESSAGE + application.get('port'));
+  });
+
+  application.get('/compute', (request, response) => {
+    try {
+      const FILE_CONTENT = request.body();
+      console.log('File content: ' + FILE_CONTENT);
+      res.json({
+        answer: FILE_CONTENT,
+      });
+
+    } catch (error) {
+      response.status(500).send('Internal server error for POST to /compute');
+    }
   });
 }
 
