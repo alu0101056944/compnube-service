@@ -24,7 +24,7 @@ function main() {
 
     buttonFileSend.disabled = true;
     console.log('File sent for execution. Waiting for the server response...');
-    fetch('http://localhost:8080/compute', {
+    fetch('http://localhost:8080/compute', {  
       method: 'POST',
       body: formData
     })
@@ -33,9 +33,7 @@ function main() {
       if (response.ok) {
         return response.json();
       } else {
-        const ERROR_TEXT =
-            'File upload failed: ' + response.status + ' ' + response.statusText;
-        throw new Error(ERROR_TEXT);
+        throw response.body();
       }
     })
     .then(data => {
@@ -43,7 +41,16 @@ function main() {
       alert('Execution result: ' + data.answer);
       console.log('Execution result: ', data.answer);
     })
-    .catch(error => {
+    .catch(async (readableStream) => {
+      const reader = readableStream.getReader();
+      const decoder = new TextDecoder();
+
+      let result = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        result += decoder.decode(value, { stream: true });
+      }
       console.log(error);
       alert(error);
     })

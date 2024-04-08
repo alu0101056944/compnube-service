@@ -27,7 +27,7 @@ const __dirname = path.dirname(__filename);
 /**
  * @summary Configure and run the webserver.
  */
-function main() {
+function execute() {
   const application = expressAppCreator();
 
   application.set('port', 8080);
@@ -47,11 +47,20 @@ function main() {
     const form = formidable({});
     try {
         const files = await form.parse(request);
-        const FILE_CONTENT = await readFile(files.file[0].filepath, 'utf-8');
-        // ... validate js, check for main(), execute main(), receive result and send back
-
-        response.writeHead(200, { 'Content-Type': 'text/plain' });
-        response.end(String(FILE_CONTENT));
+        const FILE_CONTENT = await readFile(files[1].file[0].filepath, 'utf-8');
+        const HAS_ENTRY_POINT = /function main()/.test(FILE_CONTENT);
+        const CALLS_ENTRY_POINT = /(?<!.*function\s+)main\((.+,?)*\);?/.test(FILE_CONTENT);
+        if (HAS_ENTRY_POINT && !CALLS_ENTRY_POINT) {
+          const FINAL_CONTENT = FILE_CONTENT.replace(/function main\(\)/g, 'main = () =>');
+          let main = () => {}
+          eval(FINAL_CONTENT);
+          const RESULT = main(); // should be a function defined in FILE_CONTENT, which should be a .js
+          response.json({ answer: RESULT });
+        } else {
+          throw new Error('File lacks a function main definition or ' +
+              ' is defined but calls it directly. Please only define it, ' +
+              ' don\'t execute it.');
+        }
     } catch (err) {
         console.error(err);
         response.writeHead(err.httpCode || 400, { 'Content-Type': 'text/plain' });
@@ -62,5 +71,5 @@ function main() {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main();
+  execute();
 }
