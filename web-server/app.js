@@ -21,6 +21,8 @@ import { readFile } from 'fs/promises';
 
 import formidable, { errors as formidableErrors } from 'formidable';
 
+import { getAllServiceConfig, checkBinaries } from '../src/validate_services.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -67,6 +69,13 @@ function execute() {
         response.end(String(err));
         return;
     }
+  });
+
+  application.get('/services', async (request, response) => {
+    debugger;
+    await checkBinaries();
+    const allServiceConfig = await getAllServiceConfig();
+    response.json(allServiceConfig);
   });
 }
 

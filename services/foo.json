@@ -1,0 +1,5 @@
+{
+  "name": "a service",
+  "argAmount": 4,
+  "description": "An arbitrary service."
+}

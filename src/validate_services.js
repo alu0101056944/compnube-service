@@ -8,19 +8,19 @@
 
 'use strict';
 
-import { readDir, readFile, access, constants } from 'fs/promises';
+import { readdir, readFile, access, constants } from 'fs/promises';
 import { basename, extname } from 'path';
 
-import config from './config.json' assert { type: 'json' }
+import { config } from './config.js';
 
 async function readServicesFolder(callback) {
   try {
-    const allFilename = await readDir(config.servicesPath);
+    const allFilename = await readdir(config.servicesPath ?? 'http://localhost:8080/');
     for (const filename of allFilename) {
       await callback(filename, allFilename);
     }
   } catch (error) {
-    console.error('Error while readServicesFolder: ' + error);
+    console.error('Error at readServicesFolder: ' + error);
   }
 }
 
@@ -28,7 +28,8 @@ async function getAllJSONObject() {
   const allJSONObject = [];
   await readServicesFolder(async (filename) => {
     if (extname(filename) === '.json') {
-      const FILE_CONTENT = await readFile(`${config.servicesPath}${filename}`, 'utf-8');
+      const FILE_CONTENT = await readFile(`${config.servicesPath ?? 'http://localhost:8080/'}` +
+          `${filename}`, 'utf-8');
       try {
         const serviceConfiguration = JSON.parse(FILE_CONTENT);
         allJSONObject.push(serviceConfiguration);
@@ -38,22 +39,35 @@ async function getAllJSONObject() {
       }
     }
   });
+  return allJSONObject;
 }
 
 export async function checkBinaries() {
   await readServicesFolder(async (filename, allFilename) => {
-    for (const filenameSecondCheck of allFilename) {
-      if (basename(filenameSecondCheck) === filename &&
-          extname(filenameSecondCheck) !== '.json') {
-        try {
-
-          // This will do nothing if it is an executable
-          await access(`${config.servicesPath}${filenameSecondCheck}`,
-              constants.X_OK);
-        } catch (error) {
-          console.error(`Permission error or the service ${basename(filename)}` +
-            ' doesn\'t have a binary in the services folder. Error: ' + error);
+    if (extname(filename) === '.json') {
+      let HAS_FOUND_BINARY = false;
+      for (const filenameSecondCheck of allFilename) {
+        const FILENAME_WITHOUT_EXTENSION =
+            basename(filename, extname(filename));
+        const FILENAME_SECOND_WITHOUT_EXTENSION =
+            basename(filenameSecondCheck, extname(filenameSecondCheck));
+        if (FILENAME_WITHOUT_EXTENSION === FILENAME_SECOND_WITHOUT_EXTENSION &&
+            extname(filenameSecondCheck) !== '.json') {
+          try {
+  
+            // This will do nothing if it is an executable
+            await access(`${config.servicesPath}${filenameSecondCheck}`,
+                constants.X_OK);
+            HAS_FOUND_BINARY = true;
+          } catch (error) {
+            console.error(`Permission error for the service ${basename(filename)},` +
+              ' cannot execute the binar. Error: ' + error);
+          }
         }
+      }
+      if (!HAS_FOUND_BINARY) {
+        throw new Error(`The service ${filename} does not have it\'s binary in` +
+            ' the services/ folder.');
       }
     }
   });

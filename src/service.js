@@ -15,10 +15,6 @@ export default class Service {
   #name = undefined;
   #description = undefined;
 
-  /**
-   * 
-   * @param {array} args 
-   */
   constructor(name, description, argAmount) {
     this.#argAmount = argAmount;
     this.#name = name;
