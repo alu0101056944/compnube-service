@@ -12,7 +12,7 @@
 
 'use strict';
 
-// Meant to be called on page load at index.html
+// This is meant to be called on the index.html
 function main() {
   const fileInput = document.querySelector('#fileInput');
 

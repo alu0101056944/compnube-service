@@ -2,13 +2,32 @@
 <html>
   <head>
     <title>Servicio genérico de cómputo</title>
-    <script type="module" src="upload-backend.js" defer></script>
+
+    <link rel="stylesheet" href="assets/index.css">
+
+    <script type="module" src="use-upload-backend.js" defer></script>
+    <script type="module" src="use-fetch-services.js" defer></script>
   </head>
-  <body style="background-color: darkgrey;">
-    <h1>Archivo a ejecutar:</h1>
-    <form>
-      <input type="file" id="fileInput">
-      <br><button type="button" id="fileSendButton">Upload and execute file.</button>
-    </form>
+  <body>
+    <nav>
+      <h1>Platform for executing services</h1>
+    </nav>
+    <main>
+      <div id="divServices">
+        <h2>Services</h2>
+        <div id="divServiceList">
+          <!-- Services are added here -->
+        </div>
+      </div> 
+
+      <div>
+        <h2>Archivo a ejecutar:</h1>
+          <form>
+            <input type="file" id="fileInput">
+            <br>
+            <button type="button" id="fileSendButton">Upload and execute file.</button>
+          </form>
+      </div>
+    </main>
   </body>
 </html>
