@@ -20,7 +20,7 @@ async function main() {
   const divServiceList = document.querySelector('#divServiceList');
   try {
     const response = await fetch((config.serverBaseURL ?? 'http://localhost:8080/') +
-      config.servicesPath ?? 'services/');
+        config.servicesPath ?? 'services/');
     const allServiceConfig = await response.json();
     for (const config of allServiceConfig) {
       divServiceList.innerHTML += new ServiceView(config).toString();

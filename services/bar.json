@@ -1,0 +1,5 @@
+{
+  "name": "Another service",
+  "argAmount": 2,
+  "description": "Compute the sum of two numbers."
+}

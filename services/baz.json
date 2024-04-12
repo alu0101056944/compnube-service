@@ -1,0 +1,5 @@
+{
+  "name": "A service that doesn't have a binary",
+  "argAmount": 1,
+  "description": "Placeholder description."
+}

@@ -13,7 +13,7 @@
 
 'use strict';
 
-import expressAppCreator from 'express';
+import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import process from 'process';
@@ -21,7 +21,7 @@ import { readFile } from 'fs/promises';
 
 import formidable, { errors as formidableErrors } from 'formidable';
 
-import { getAllServiceConfig, checkBinaries } from '../src/validate_services.js';
+import ServicesLoader from '../src/ServicesLoader.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,14 +30,14 @@ const __dirname = path.dirname(__filename);
  * @summary Configure and run the webserver.
  */
 function execute() {
-  const application = expressAppCreator();
+  const application = express();
 
   application.set('port', 8080);
 
   const PATH_TO_ROOT = path.join(__dirname, '../www');
   const PATH_TO_SRC = path.join(__dirname, '../src');
-  application.use(expressAppCreator.static(PATH_TO_ROOT));
-  application.use(expressAppCreator.static(PATH_TO_SRC));
+  application.use(express.static(PATH_TO_ROOT));
+  application.use(express.static(PATH_TO_SRC));
 
   application.listen(application.get('port'), '0.0.0.0', function() {
     const DEFAULT_START_MESSAGE =
@@ -73,8 +73,8 @@ function execute() {
 
   application.get('/services', async (request, response) => {
     debugger;
-    await checkBinaries();
-    const allServiceConfig = await getAllServiceConfig();
+    const serviceLoader = new ServicesLoader();
+    const allServiceConfig = await serviceLoader.load()
     response.json(allServiceConfig);
   });
 }
