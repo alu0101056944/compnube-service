@@ -21,8 +21,8 @@ import { readFile } from 'fs/promises';
 
 import formidable, { errors as formidableErrors } from 'formidable';
 
-import ServicesLoader from '../src/ServicesLoader.js';
-import ServicesValidator from '../src/ServicesValidator.js';
+import ServicesLoader from '../src/services/ServicesLoader.js';
+import ServicesValidator from '../src/services/ServicesValidator.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

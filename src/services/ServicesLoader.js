@@ -11,7 +11,7 @@
 import { readdir, readFile, access, constants } from 'fs/promises';
 import { basename, extname } from 'path';
 
-import { config } from './config.js'
+import { config } from '../config.js'
 
 export default class ServicesLoader {
   #allConfigObject = undefined;
