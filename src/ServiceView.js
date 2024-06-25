@@ -11,26 +11,26 @@
 export default class ServiceView {
 
   /** @constant @private */
-  #argAmount = undefined;
-  #name = undefined;
-  #description = undefined;
+  #config = undefined;
 
   /**
    * 
    * @param {object} config info about the service like name, description, etc.
    */
   constructor(config) {
-    this.#name = config.name;
-    this.#description = config.description;
-    this.#argAmount = config.argAmount;
+    this.#config = config;
   }
 
   toString() {
+    const paramsStyle = this.#config.params.map((param) => {
+      return `<p>${param.name}: ${param.type} -> ${param.description}</p>`
+    });
     return `
       <div style=display: flex; flex-direction: column; background-color: grey;>
-        <h1>${this.#name}</h1>
-        <p>Argument amount: ${this.#argAmount}</p>
-        <p>${this.#description}</p>
+        <h1>${this.#config.name}</h1>
+        <p>${this.#config.description}</p>
+        <h2>Parameters:</h2>
+        ${paramsStyle.join('<br>')}
       <div>
     `;
   }
