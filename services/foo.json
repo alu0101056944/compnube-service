@@ -1,5 +1,11 @@
 {
   "name": "a service",
-  "argAmount": 4,
-  "description": "An arbitrary service."
+  "description": "An arbitrary service.",
+  "params": [
+    {
+      "name": "foo",
+      "description": "An arbitrary boolean",
+      "type": "bool"
+    }
+  ]
 }

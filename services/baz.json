@@ -1,5 +1,11 @@
 {
   "name": "A service that doesn't have a binary",
-  "argAmount": 1,
-  "description": "Placeholder description."
+  "description": "Placeholder description.",
+  "params": [
+    {
+      "name": "foo",
+      "description": "An arbitrary string",
+      "type": "string"
+    }
+  ]
 }

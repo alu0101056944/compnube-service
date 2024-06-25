@@ -1,5 +1,11 @@
 {
   "name": "Another service",
-  "argAmount": 2,
-  "description": "Compute the sum of two numbers."
+  "description": "Compute the sum of two numbers.",
+  "params": [
+    {
+      "name": "foo",
+      "description": "An arbitrary number",
+      "type": "integer"
+    }
+  ]
 }
