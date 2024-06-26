@@ -24,8 +24,8 @@ export default class ServiceConfiguratorController {
 
     const allSelectButton = [];
 
-    const SELECTED_COLOR = 'lightgrey';
-    const NOT_SELECTED_COLOR = 'grey';
+    const SELECTED_COLOR = 'orange';
+    const NOT_SELECTED_COLOR = 'white';
 
     const divSelector = document.querySelector('#divSelector');
 
@@ -34,10 +34,13 @@ export default class ServiceConfiguratorController {
       const buttonId = `#select${SERVICE_NAME_SPACELESS}`;
       const selectButton = document.querySelector(buttonId);
       selectButton.addEventListener('click', () => {
-        if (this.#selectedButton && !selectedButton.isSameNode(selectButton)) {
-          selectedButton.style.backgroundColor = NOT_SELECTED_COLOR;
+        if (this.#selectedButton && !this.#selectedButton.isSameNode(selectButton)) {
+          this.#selectedButton.style.backgroundColor = NOT_SELECTED_COLOR;
           this.#selectedButton = selectButton;
-          selectedButton.style.backgroundColor = SELECTED_COLOR;
+          this.#selectedButton.style.backgroundColor = SELECTED_COLOR;
+        } else if (!this.#selectedButton) {
+          this.#selectedButton = selectButton;
+          this.#selectedButton.style.backgroundColor = SELECTED_COLOR;
         }
         divSelector.innerHTML = new ServiceConfiguratorView(config).toString();
       });
