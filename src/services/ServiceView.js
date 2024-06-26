@@ -33,8 +33,9 @@ export default class ServiceView {
         <p>${this.#config.description}</p>
         <h2>Parameters:</h2>
         ${paramsStyle.join('<br>')}
-        <div><button id="select${SERVICE_NAME_SPACELESS}">Select</button></div>
-      <div>
+        <div><button style="background-color: white;"
+            id="select${SERVICE_NAME_SPACELESS}">Select</button></div>
+      </div>
     `;
   }
 }

@@ -13,7 +13,7 @@
 'use strict';
 
 import ServiceView from './services/ServiceView.js';
-import ServiceConfiguratorView from './services/ServiceConfiguratorView.js';
+import ServiceConfiguratorController from './services/ServiceConfiguratorController.js';
 
 import { config } from './config.js';
 
@@ -26,9 +26,9 @@ async function main() {
     for (const config of allServiceConfig) {
       divServiceList.innerHTML += new ServiceView(config).toString();
     }
-    const divSelector = document.querySelector('#divSelector');
-    divSelector.innerHTML += new ServiceConfiguratorView(allServiceConfig[0]);
-  } catch (error) {
+    const serviceConfiguratorController =
+        new ServiceConfiguratorController(allServiceConfig);
+  } catch (error) {n
     console.error('Error while fetching services. ' + error);
   }
 }

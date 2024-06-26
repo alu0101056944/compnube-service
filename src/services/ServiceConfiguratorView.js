@@ -10,7 +10,7 @@
 
 export default class ServiceConfiguratorView {
 
-  /** @constant @private */
+  /** @private */
   #config = undefined;
 
   /**
@@ -32,7 +32,7 @@ export default class ServiceConfiguratorView {
         ${allParamInputs.join('<br>')}
         <br>
         <button id='sendService'>Send to queue</button>
-      <div>
+      </div>
     `;
   }
 }
