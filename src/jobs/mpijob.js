@@ -12,10 +12,16 @@ export default class MPIJob {
   /** @constant @private **/ 
   #nodeAmount = undefined;
   #args = undefined;
+  #config = undefined;
 
-  constructor(nodeAmount, args) {
+  constructor(nodeAmount, args, config) {
     this.#nodeAmount = nodeAmount;
     this.#args = args;
+    this.#config = config;
+  }
+
+  execute() {
+
   }
 
 }

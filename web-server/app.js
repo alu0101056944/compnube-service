@@ -39,6 +39,7 @@ function execute() {
   const PATH_TO_SRC = path.join(__dirname, '../src');
   application.use(express.static(PATH_TO_ROOT));
   application.use(express.static(PATH_TO_SRC));
+  application.use(express.json());
 
   application.listen(application.get('port'), '0.0.0.0', function() {
     const DEFAULT_START_MESSAGE =
@@ -70,6 +71,11 @@ function execute() {
         response.end(String(err));
         return;
     }
+  });
+
+  application.post('/execute', async (request, response) => {
+    console.log('Request obtained');
+    console.log(JSON.stringify(request.body, null, 2));
   });
 
   application.get('/services', async (request, response) => {

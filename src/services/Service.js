@@ -9,7 +9,6 @@
 'use strict';
 
 export default class Service {
-
   /** @constant @private */
   #argAmount = undefined;
   #name = undefined;

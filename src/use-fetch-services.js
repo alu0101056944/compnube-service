@@ -28,7 +28,7 @@ async function main() {
     }
     const serviceConfiguratorController =
         new ServiceConfiguratorController(allServiceConfig);
-  } catch (error) {n
+  } catch (error) {
     console.error('Error while fetching services. ' + error);
   }
 }
