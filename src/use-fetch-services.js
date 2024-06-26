@@ -30,7 +30,8 @@ async function main() {
     const serviceConfiguratorController =
         new ServiceConfiguratorController(allServiceConfig);
     
-    
+    const response2 = await fetch((config.serverBaseURL + '/getruns'));
+    const allRun = await response2.json();
     const launchedServicesView = new LaunchedServicesView();
   } catch (error) {
     console.error('Error while fetching services. ' + error);

@@ -24,6 +24,8 @@ import formidable, { errors as formidableErrors } from 'formidable';
 import ServicesLoader from '../src/services/ServicesLoader.js';
 import ServicesValidator from '../src/services/ServicesValidator.js';
 
+import { config } from '../src/config.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -74,13 +76,20 @@ function execute() {
   });
 
   application.post('/execute', async (request, response) => {
-    console.log('Request obtained');
+    console.log('Job request obtained');
+
+    // register request on requestLaunchs
     const fileWithRuns =
         await readFile('src/services/requestLaunchs.json', 'utf-8');
     const jsonWithRuns = JSON.parse(fileWithRuns);
     jsonWithRuns.launchs.push(request.body);
     await writeFile('src/services/requestLaunchs.json',
         JSON.stringify(jsonWithRuns, null, 2));
+
+    // create updates folder for the request
+    const WRITE_PATH = config.requestUpdatesPath + request.body.config.name +
+        '_' + request.body.id + '.json';
+    await writeFile(WRITE_PATH, JSON.stringify({ updates: [] }));
   });
 
   application.get('/services', async (request, response) => {

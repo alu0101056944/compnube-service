@@ -16,6 +16,57 @@
         ]
       },
       "id": 17
+    },
+    {
+      "args": {
+        "foo": "true"
+      },
+      "config": {
+        "name": "a service",
+        "description": "An arbitrary service.",
+        "params": [
+          {
+            "name": "foo",
+            "description": "An arbitrary boolean",
+            "type": "bool"
+          }
+        ]
+      },
+      "id": 18
+    },
+    {
+      "args": {
+        "foo": "true"
+      },
+      "config": {
+        "name": "a service",
+        "description": "An arbitrary service.",
+        "params": [
+          {
+            "name": "foo",
+            "description": "An arbitrary boolean",
+            "type": "bool"
+          }
+        ]
+      },
+      "id": 18
+    },
+    {
+      "args": {
+        "foo": "true"
+      },
+      "config": {
+        "name": "a service",
+        "description": "An arbitrary service.",
+        "params": [
+          {
+            "name": "foo",
+            "description": "An arbitrary boolean",
+            "type": "bool"
+          }
+        ]
+      },
+      "id": 19
     }
   ]
 }

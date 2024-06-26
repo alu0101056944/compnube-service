@@ -5,5 +5,6 @@
 
 export const config = {
   "servicesPath": "services/",
-  "serverBaseURL": "http://localhost:8080/"
+  "serverBaseURL": "http://localhost:8080/",
+  "requestUpdatesPath": "jobUpdates/",
 }
