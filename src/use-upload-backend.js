@@ -14,47 +14,47 @@
 
 // This is meant to be called on the index.html
 function main() {
-  const fileInput = document.querySelector('#fileInput');
+  // const fileInput = document.querySelector('#fileInput');
 
-  const buttonFileSend = document.querySelector('#fileSendButton');
-  buttonFileSend.addEventListener('click', _ => {
-    const file = fileInput.files[0];
-    const formData = new FormData();
-    formData.append('file', file);
+  // const buttonFileSend = document.querySelector('#fileSendButton');
+  // buttonFileSend.addEventListener('click', _ => {
+  //   const file = fileInput.files[0];
+  //   const formData = new FormData();
+  //   formData.append('file', file);
 
-    buttonFileSend.disabled = true;
-    console.log('File sent for execution. Waiting for the server response...');
-    fetch('http://localhost:8080/compute', {  
-      method: 'POST',
-      body: formData
-    })
-    .then(response => {
-      buttonFileSend.disabled = false;
-      if (response.ok) {
-        return response.json();
-      } else {
-        throw response.body();
-      }
-    })
-    .then(data => {
-      // I expect to receieve a json with an answer key
-      alert('Execution result: ' + data.answer);
-      console.log('Execution result: ', data.answer);
-    })
-    .catch(async (readableStream) => {
-      const reader = readableStream.getReader();
-      const decoder = new TextDecoder();
+  //   buttonFileSend.disabled = true;
+  //   console.log('File sent for execution. Waiting for the server response...');
+  //   fetch('http://localhost:8080/compute', {  
+  //     method: 'POST',
+  //     body: formData
+  //   })
+  //   .then(response => {
+  //     buttonFileSend.disabled = false;
+  //     if (response.ok) {
+  //       return response.json();
+  //     } else {
+  //       throw response.body();
+  //     }
+  //   })
+  //   .then(data => {
+  //     // I expect to receieve a json with an answer key
+  //     alert('Execution result: ' + data.answer);
+  //     console.log('Execution result: ', data.answer);
+  //   })
+  //   .catch(async (readableStream) => {
+  //     const reader = readableStream.getReader();
+  //     const decoder = new TextDecoder();
 
-      let result = '';
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        result += decoder.decode(value, { stream: true });
-      }
-      console.log(error);
-      alert(error);
-    })
-  });
+  //     let result = '';
+  //     while (true) {
+  //       const { done, value } = await reader.read();
+  //       if (done) break;
+  //       result += decoder.decode(value, { stream: true });
+  //     }
+  //     console.log(error);
+  //     alert(error);
+  //   })
+  // });
 }
 
 main();

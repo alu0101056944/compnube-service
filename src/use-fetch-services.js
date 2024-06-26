@@ -15,6 +15,7 @@
 import ServiceView from './services/ServiceView.js';
 import ServiceConfiguratorController from './services/ServiceConfiguratorController.js';
 import LaunchedServicesView from './runs/LaunchedServicesView.js';
+import LaunchedServicesController from './runs/LaunchedServicesController.js';
 import ResultView from './runs/ResultView.js';
 
 import { config } from './config.js';
@@ -41,6 +42,7 @@ async function main() {
     const launchedServicesView = new LaunchedServicesView(allResultView);
     const divLaunchedServices = document.querySelector('#launchedServices');
     divLaunchedServices.innerHTML = launchedServicesView.toString();
+    const launchedServicesController = new LaunchedServicesController(allRun);
   } catch (error) {
     console.error('Error while fetching runs: ' + error);
   }

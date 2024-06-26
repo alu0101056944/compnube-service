@@ -49,31 +49,31 @@ function execute() {
     console.log(DEFAULT_START_MESSAGE + application.get('port'));
   });
 
-  application.post('/compute', async (request, response) => {
-    const form = formidable({});
-    try {
-        const files = await form.parse(request);
-        const FILE_CONTENT = await readFile(files[1].file[0].filepath, 'utf-8');
-        const HAS_ENTRY_POINT = /function main()/.test(FILE_CONTENT);
-        const CALLS_ENTRY_POINT = /(?<!.*function\s+)main\((.+,?)*\);?/.test(FILE_CONTENT);
-        if (HAS_ENTRY_POINT && !CALLS_ENTRY_POINT) {
-          const FINAL_CONTENT = FILE_CONTENT.replace(/function main\(\)/g, 'main = () =>');
-          let main = () => {}
-          eval(FINAL_CONTENT);
-          const RESULT = main(); // should be a function defined in FILE_CONTENT, which should be a .js
-          response.json({ answer: RESULT });
-        } else {
-          throw new Error('File lacks a function main definition or ' +
-              ' is defined but calls it directly. Please only define it, ' +
-              ' don\'t execute it.');
-        }
-    } catch (err) {
-        console.error(err);
-        response.writeHead(err.httpCode || 400, { 'Content-Type': 'text/plain' });
-        response.end(String(err));
-        return;
-    }
-  });
+  // application.post('/compute', async (request, response) => {
+  //   const form = formidable({});
+  //   try {
+  //       const files = await form.parse(request);
+  //       const FILE_CONTENT = await readFile(files[1].file[0].filepath, 'utf-8');
+  //       const HAS_ENTRY_POINT = /function main()/.test(FILE_CONTENT);
+  //       const CALLS_ENTRY_POINT = /(?<!.*function\s+)main\((.+,?)*\);?/.test(FILE_CONTENT);
+  //       if (HAS_ENTRY_POINT && !CALLS_ENTRY_POINT) {
+  //         const FINAL_CONTENT = FILE_CONTENT.replace(/function main\(\)/g, 'main = () =>');
+  //         let main = () => {}
+  //         eval(FINAL_CONTENT);
+  //         const RESULT = main(); // should be a function defined in FILE_CONTENT, which should be a .js
+  //         response.json({ answer: RESULT });
+  //       } else {
+  //         throw new Error('File lacks a function main definition or ' +
+  //             ' is defined but calls it directly. Please only define it, ' +
+  //             ' don\'t execute it.');
+  //       }
+  //   } catch (err) {
+  //       console.error(err);
+  //       response.writeHead(err.httpCode || 400, { 'Content-Type': 'text/plain' });
+  //       response.end(String(err));
+  //       return;
+  //   }
+  // });
 
   application.post('/execute', async (request, response) => {
     console.log('Job request obtained');

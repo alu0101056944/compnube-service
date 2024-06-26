@@ -21,6 +21,6 @@
   "cli": "{binary}",
   "cliParams": {
   },
-  "acceptInputFiles": "true",
+  "acceptInputFiles": "false",
   "hostIP": "10.6.131.168"
 }

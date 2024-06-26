@@ -11,6 +11,8 @@
 import ServiceConfiguratorView from "./ServiceConfiguratorView.js";
 
 import ServiceArgumentsValidator from './ServiceArgumentsValidator.js'
+import LaunchedServicesView from '../runs/LaunchedServicesView.js';
+import ResultView from '../runs/ResultView.js';
 
 import { config } from '../config.js';
 
@@ -43,7 +45,7 @@ export default class ServiceConfiguratorController {
       const SERVICE_NAME_SPACELESS = config.name.replace(/\s/g, '');
       const buttonId = `#select${SERVICE_NAME_SPACELESS}`;
       const selectButton = document.querySelector(buttonId);
-      selectButton.addEventListener('click', () => {
+      selectButton.addEventListener('click', async () => {
         if (this.#selectedButton && !this.#selectedButton.isSameNode(selectButton)) {
           this.#selectedButton.style.backgroundColor = NOT_SELECTED_COLOR;
           this.#selectedButton = selectButton;
@@ -62,9 +64,8 @@ export default class ServiceConfiguratorController {
     }
   }
 
-  #sendArguments() {
-    const buttonSend = document.querySelector('#sendService');
-    buttonSend.addEventListener('click', async () => {
+  async #sendArguments() {
+    const sendRequest = async () => {
       // get textfield arg values
       const allArgValue = [];
       const ARG_AMOUNT = this.#activeConfig.params.length;
@@ -90,9 +91,6 @@ export default class ServiceConfiguratorController {
         for (let i = 0; i < ARG_AMOUNT; ++i) {
           jsonToSend.args[this.#activeConfig.params[i].name] = allArgValue[i];
         }
-        for (let i = 0; i < CLI_ARG_AMOUNT; ++i) {
-          jsonToSend.cliArgs[this.#activeConfig.cliParams[i].name] = allArgValue[i];
-        }
         jsonToSend.config = this.#activeConfig;
 
         // get new service request id
@@ -100,19 +98,24 @@ export default class ServiceConfiguratorController {
         const json = await request.json();
         jsonToSend.id = json.newId;
 
-        console.log('test');
-        fetch(config.serverBaseURL + 'execute/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(jsonToSend, null, 2),
-        });
-
+        const buttonSend = document.querySelector('#sendService');
         buttonSend.disabled = true;
         setTimeout(() => {
           buttonSend.disabled = false
         }, 2000);
+
+        const body = JSON.stringify(jsonToSend, null, 2)
+        try {
+          await fetch(config.serverBaseURL + 'execute/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body,
+          });
+        } catch (error) {
+          console.error('Error while executing the service request: ' + error);
+        }
       } else {
         alert('Invalid arguments, please check the formatting. ' +
             'These are valid: ' +
@@ -121,7 +124,10 @@ export default class ServiceConfiguratorController {
             argsValidator.getInvalidArgs().map((arg) => arg.name).join(' ')
         );
       }
-    });
+      buttonSend.addEventListener('click', sendRequest);
+    };
+    const buttonSend = document.querySelector('#sendService');
+    buttonSend.addEventListener('click', sendRequest);
   }
 
   getSelectedButton() {
