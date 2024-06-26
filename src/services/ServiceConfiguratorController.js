@@ -78,23 +78,23 @@ export default class ServiceConfiguratorController {
           this.#activeConfig);
       // if all valid send json to server
       if (argsValidator.getInvalidArgs().length === 0) {
-        const argsToSend = {};
+        const jsonToSend = { args: {} };
         for (let i = 0; i < ARG_AMOUNT; ++i) {
-          argsToSend[this.#activeConfig.params[i].name] = allArgValue[i];
+          jsonToSend.args[this.#activeConfig.params[i].name] = allArgValue[i];
         }
-        argsToSend.config = this.#activeConfig;
+        jsonToSend.config = this.#activeConfig;
 
         // get new service request id
         const request = await fetch(config.serverBaseURL + 'getnewservicerequestid/');
         const json = await request.json();
-        argsToSend.id = json.newId;
+        jsonToSend.id = json.newId;
 
         await fetch(config.serverBaseURL + 'execute/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(argsToSend, null, 2),
+          body: JSON.stringify(jsonToSend, null, 2),
         });
       } else {
         alert('Invalid arguments, please check the formatting. ' +

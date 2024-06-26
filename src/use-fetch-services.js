@@ -14,6 +14,7 @@
 
 import ServiceView from './services/ServiceView.js';
 import ServiceConfiguratorController from './services/ServiceConfiguratorController.js';
+import LaunchedServicesView from './runs/LaunchedServicesView.js';
 
 import { config } from './config.js';
 
@@ -28,6 +29,9 @@ async function main() {
     }
     const serviceConfiguratorController =
         new ServiceConfiguratorController(allServiceConfig);
+    
+    
+    const launchedServicesView = new LaunchedServicesView();
   } catch (error) {
     console.error('Error while fetching services. ' + error);
   }

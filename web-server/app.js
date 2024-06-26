@@ -75,7 +75,12 @@ function execute() {
 
   application.post('/execute', async (request, response) => {
     console.log('Request obtained');
-    console.log(JSON.stringify(request.body, null, 2));
+    const fileWithRuns =
+        await readFile('src/services/requestLaunchs.json', 'utf-8');
+    const jsonWithRuns = JSON.parse(fileWithRuns);
+    jsonWithRuns.launchs.push(request.body);
+    await writeFile('src/services/requestLaunchs.json',
+        JSON.stringify(jsonWithRuns, null, 2));
   });
 
   application.get('/services', async (request, response) => {
@@ -90,7 +95,6 @@ function execute() {
     try {
       const outputJSON = {};
 
-      debugger;
       // create new unique service id and update the file with the latest id
       const fileWithAmount =
           await readFile('src/services/requestAmount.json', 'utf-8');
@@ -105,6 +109,13 @@ function execute() {
       console.log('Failed to read or write the requestAmount.json file. ' +
           'Unable to generate new service request id.' + error);
     }
+  });
+
+  application.get('/getruns', async (request, response) => {
+    const fileWithRuns =
+        await readFile('src/services/requestLaunchs.json', 'utf-8');
+    const jsonWithRuns = JSON.parse(fileWithRuns);
+    response.json(jsonWithRuns);
   });
 }
 
