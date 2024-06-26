@@ -18,8 +18,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import process from 'process';
 import { readFile, writeFile } from 'fs/promises'
+import fs from 'fs/promises';
 
-import formidable, { errors as formidableErrors } from 'formidable';
+import JSZip from 'jszip';
 
 import ServicesLoader from '../src/services/ServicesLoader.js';
 import ServicesValidator from '../src/services/ServicesValidator.js';
@@ -49,32 +50,6 @@ function execute() {
     console.log(DEFAULT_START_MESSAGE + application.get('port'));
   });
 
-  // application.post('/compute', async (request, response) => {
-  //   const form = formidable({});
-  //   try {
-  //       const files = await form.parse(request);
-  //       const FILE_CONTENT = await readFile(files[1].file[0].filepath, 'utf-8');
-  //       const HAS_ENTRY_POINT = /function main()/.test(FILE_CONTENT);
-  //       const CALLS_ENTRY_POINT = /(?<!.*function\s+)main\((.+,?)*\);?/.test(FILE_CONTENT);
-  //       if (HAS_ENTRY_POINT && !CALLS_ENTRY_POINT) {
-  //         const FINAL_CONTENT = FILE_CONTENT.replace(/function main\(\)/g, 'main = () =>');
-  //         let main = () => {}
-  //         eval(FINAL_CONTENT);
-  //         const RESULT = main(); // should be a function defined in FILE_CONTENT, which should be a .js
-  //         response.json({ answer: RESULT });
-  //       } else {
-  //         throw new Error('File lacks a function main definition or ' +
-  //             ' is defined but calls it directly. Please only define it, ' +
-  //             ' don\'t execute it.');
-  //       }
-  //   } catch (err) {
-  //       console.error(err);
-  //       response.writeHead(err.httpCode || 400, { 'Content-Type': 'text/plain' });
-  //       response.end(String(err));
-  //       return;
-  //   }
-  // });
-
   application.post('/execute', async (request, response) => {
     console.log('Job request obtained');
 
@@ -87,8 +62,7 @@ function execute() {
         JSON.stringify(jsonWithRuns, null, 2));
 
     // create updates folder for the request
-    const WRITE_PATH = config.requestUpdatesPath + request.body.config.name +
-        '_' + request.body.id + '.json';
+    const WRITE_PATH = config.requestUpdatesPath + request.body.id + '.json';
     await writeFile(WRITE_PATH, JSON.stringify({ updates: [] }));
   });
 
@@ -124,7 +98,77 @@ function execute() {
     const fileWithRuns =
         await readFile('src/services/requestLaunchs.json', 'utf-8');
     const jsonWithRuns = JSON.parse(fileWithRuns);
+
     response.json(jsonWithRuns);
+  });
+
+  application.get('/getupdates', async (request, response) => {
+    const executionUpdates = {};
+    for (const run of jsonWithRuns.launchs) {
+      const updatesFile = await readFile(config.requestUpdatesPath +
+          run.config.name + '_' + run.id + '.json');
+      const updatesFileJSON = JSON.parse(updatesFile);
+      const latestUpdate =
+          updatesFileJSON.updates[updatesFileJSON.updates.length - 1];
+      executionUpdates[run.id].executionState = latestUpdate.executionState;
+    }
+    response.json(JSON.parse(executionUpdates));
+  });
+
+  application.get('/getavailablefiles', async (request, response) => {
+    const idToFilesAvailable =
+        await readFile('./src/runs/id_to_files_available.json', 'utf-8');
+    response.json(JSON.parse(idToFilesAvailable));
+  });
+
+  application.post('deletefiles/', async (request, response) => {
+    const ID_TO_DELETE = request.body.id;
+    const idToFilesAvailable =
+      await readFile('./src/runs/id_to_files_available.json', 'utf-8');
+    const newIdToFilesAvailable = JSON.parse(idToFilesAvailable);
+    newIdToFilesAvailable.runsWithAvailableFiles[ID_TO_DELETE] = 'false';
+    await writeFile('./src/runs/id_to_files_available.json',
+          newIdToFilesAvailable);
+
+    fs.readdir(`./jobDownloads/${ID_TO_DELETE}/`, (error, files) => {
+      if (error) {
+        console.error('Cannot delete output files. Error occurred while ' +
+            'reading the folder:', error);
+      } else {
+        files.forEach(file => {
+          const filePath = `./jobDownloads/${ID_TO_DELETE}/${file}`;
+          fs.unlink(filePath, (unlinkError) => {
+            if (unlinkError) {
+              console.error(`Error occurred while deleting ${filePath}:`,
+                  unlinkError);
+            } else {
+              console.log(`${filePath} deleted successfully!`);
+            }
+          });
+        });
+      }
+    });
+  });
+
+  app.get('download/', async (request, response) => {
+    const PATH = `jobDownloads/${request.body.id}/`;
+
+    const files = await fs.readdir(PATH);
+    if (files.length === 0) {
+      console.log('There are no files');
+    }
+
+    const zip = new JSZip();
+    for (const file of files) {
+      const filePath = path.join(PATH, file);
+      const fileContent = await fs.readFile(filePath);
+      zip.file(file, fileContent);
+    }
+
+    const zipContent = await zip.generateAsync({ type: 'nodebuffer' });
+    response.set('Content-Type', 'application/zip');
+    response.set('Content-Disposition', `attachment; filename=job_${request.body.id}_files.zip`);
+    response.send(zipContent);
   });
 }
 
