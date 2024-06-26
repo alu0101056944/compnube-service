@@ -89,13 +89,19 @@ export default class ServiceConfiguratorController {
         const json = await request.json();
         jsonToSend.id = json.newId;
 
-        await fetch(config.serverBaseURL + 'execute/', {
+        console.log('test');
+        fetch(config.serverBaseURL + 'execute/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(jsonToSend, null, 2),
         });
+
+        buttonSend.disabled = true;
+        setTimeout(() => {
+          buttonSend.disabled = false
+        }, 2000);
       } else {
         alert('Invalid arguments, please check the formatting. ' +
             'These are valid: ' +

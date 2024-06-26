@@ -37,7 +37,7 @@ async function main() {
   try {
     const response2 = await fetch(config.serverBaseURL + 'getruns/');
     const allRun = await response2.json();
-    const allResultView = allRun.launchs.map(run => new ResultView(run.id));
+    const allResultView = allRun.launchs.map(run => new ResultView(run.config, run.id));
     const launchedServicesView = new LaunchedServicesView(allResultView);
     const divLaunchedServices = document.querySelector('#launchedServices');
     divLaunchedServices.innerHTML = launchedServicesView.toString();

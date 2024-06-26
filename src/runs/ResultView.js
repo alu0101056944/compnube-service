@@ -9,34 +9,47 @@
 'use strict';
 
 export default class ResultView {
-  /** @private **/
+  /** @private @constant **/
+  #config = undefined;
+  #id = undefined;
+
+  /** @private */
   #executionStatus = undefined;
-  #serviceRequestId = undefined;
   #resultFilesDownloaded = undefined;
 
-
-  constructor(serviceRequestId) {
+  constructor(config, id) {
     this.#executionStatus = 'pendingStart';
-    this.#serviceRequestId = serviceRequestId;
+    this.#id = id;
+    this.#config = config;
     this.#resultFilesDownloaded = false;
   }
 
   setExecutionState(state) {
     this.#executionStatus = state;
+    document.querySelector(`#executionState${this.#id}`).textContent = state;
   }
 
   markFilesAsDownloaded() {
     this.#resultFilesDownloaded = true;
+    document.querySelector(`#downloadButton${this.#id}`).disabled = true;
+    document.querySelector(`#hasBeenDownloaded${this.#id}`)
+        .textContent = 'Already downloaded.';
   }
 
   toString() {
     return `
-        <div style="background-color: orange;">
-          <b>${this.#serviceRequestId}</b>
-          <span id="executionState${this.#serviceRequestId}">pending start</span>
-          <button id="downloadButton${this.#serviceRequestId}">Download output files</button>
+        <div style="background-color: orange; padding: 9px 0px 9px 6px; margin-bottom: 5px;
+            display: flex; flex-direction: row;">
+          <div style="width: 80%;">
+            <b>${this.#config.name}(${this.#id}): </b>
+            <span id="executionState${this.#id}">pending start</span>
+          </div>
+          <div style="width: 20%";>
+            <button id="downloadButton${this.#id}" disabled="true">
+                Download output files</button>
+            <span id="hasBeenDownloaded${this.#id}"></span>
+          </div>
         </div>
       `;
   }
-  
 }

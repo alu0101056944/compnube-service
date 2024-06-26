@@ -24,7 +24,7 @@ export default class LaunchedServicesView {
     return `
       <div style="display: flex; flex-direction: column; background-color: brown;
           padding-left: 8px; padding-bottom: 5px;">
-        <h1>State of launched services</h1>
+        <h1>State of launched services (old and new)</h1>
         ${this.#allResult.map(result => result.toString()).join('<br>')}
       </div>
     `;

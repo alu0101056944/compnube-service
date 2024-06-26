@@ -1,4 +1,123 @@
 {
   "launchs": [
+    {
+      "args": {
+        "foo": "true"
+      },
+      "config": {
+        "name": "a service",
+        "description": "An arbitrary service.",
+        "params": [
+          {
+            "name": "foo",
+            "description": "An arbitrary boolean",
+            "type": "bool"
+          }
+        ]
+      },
+      "id": 20
+    },
+    {
+      "args": {
+        "foo": "true"
+      },
+      "config": {
+        "name": "a service",
+        "description": "An arbitrary service.",
+        "params": [
+          {
+            "name": "foo",
+            "description": "An arbitrary boolean",
+            "type": "bool"
+          }
+        ]
+      },
+      "id": 21
+    },
+    {
+      "args": {
+        "foo": "true"
+      },
+      "config": {
+        "name": "a service",
+        "description": "An arbitrary service.",
+        "params": [
+          {
+            "name": "foo",
+            "description": "An arbitrary boolean",
+            "type": "bool"
+          }
+        ]
+      },
+      "id": 22
+    },
+    {
+      "args": {
+        "foo": "2"
+      },
+      "config": {
+        "name": "Another service",
+        "description": "Compute the sum of two numbers.",
+        "params": [
+          {
+            "name": "foo",
+            "description": "An arbitrary number",
+            "type": "integer"
+          }
+        ]
+      },
+      "id": 23
+    },
+    {
+      "args": {
+        "foo": "2"
+      },
+      "config": {
+        "name": "Another service",
+        "description": "Compute the sum of two numbers.",
+        "params": [
+          {
+            "name": "foo",
+            "description": "An arbitrary number",
+            "type": "integer"
+          }
+        ]
+      },
+      "id": 23
+    },
+    {
+      "args": {
+        "foo": "true"
+      },
+      "config": {
+        "name": "a service",
+        "description": "An arbitrary service.",
+        "params": [
+          {
+            "name": "foo",
+            "description": "An arbitrary boolean",
+            "type": "bool"
+          }
+        ]
+      },
+      "id": 24
+    },
+    {
+      "args": {
+        "foo": "3"
+      },
+      "config": {
+        "name": "Another service",
+        "description": "Compute the sum of two numbers.",
+        "params": [
+          {
+            "name": "foo",
+            "description": "An arbitrary number",
+            "type": "integer"
+          }
+        ]
+      },
+      "id": 25
+    }
   ]
 }
