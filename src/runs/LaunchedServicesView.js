@@ -12,6 +12,10 @@ export default class LaunchedServicesView {
   /** @private */
   #allResult = undefined;
 
+  /**
+   * 
+   * @param {object} allResult array of ResultView
+   */
   constructor(allResult) {
     this.#allResult = allResult;
   }

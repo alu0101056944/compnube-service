@@ -15,6 +15,7 @@
 import ServiceView from './services/ServiceView.js';
 import ServiceConfiguratorController from './services/ServiceConfiguratorController.js';
 import LaunchedServicesView from './runs/LaunchedServicesView.js';
+import ResultView from './runs/ResultView.js';
 
 import { config } from './config.js';
 
@@ -29,12 +30,19 @@ async function main() {
     }
     const serviceConfiguratorController =
         new ServiceConfiguratorController(allServiceConfig);
-    
-    const response2 = await fetch((config.serverBaseURL + '/getruns'));
-    const allRun = await response2.json();
-    const launchedServicesView = new LaunchedServicesView();
   } catch (error) {
     console.error('Error while fetching services. ' + error);
+  }
+
+  try {
+    const response2 = await fetch(config.serverBaseURL + 'getruns/');
+    const allRun = await response2.json();
+    const allResultView = allRun.launchs.map(run => new ResultView(run.id));
+    const launchedServicesView = new LaunchedServicesView(allResultView);
+    const divLaunchedServices = document.querySelector('#launchedServices');
+    divLaunchedServices.innerHTML = launchedServicesView.toString();
+  } catch (error) {
+    console.error('Error while fetching runs: ' + error);
   }
 }
 

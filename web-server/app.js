@@ -124,6 +124,7 @@ function execute() {
     const fileWithRuns =
         await readFile('src/services/requestLaunchs.json', 'utf-8');
     const jsonWithRuns = JSON.parse(fileWithRuns);
+    console.log(jsonWithRuns);
     response.json(jsonWithRuns);
   });
 }
