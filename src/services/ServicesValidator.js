@@ -37,15 +37,36 @@ export default class ServicesValidator {
    */
   async validate(allConfigObject) {
     this.#allValidConfigObject = allConfigObject.filter((configObject) => {
-      const HAS_ALL_FIELDS = configObject.name && configObject.description && 
-        configObject.params;
-      const ARRAY_IS_CORRECT = Array.isArray(configObject.params) &&
+      const HAS_ALL_FIELDS = 
+          ['name', 'description', 'params', 'cli',
+            'cliParams', 'acceptInputFiles', 'hostIP']
+          .every(param => Object.getOwnPropertyNames(configObject).includes(param));
+      if (!HAS_ALL_FIELDS) {
+        return false;
+      }
+
+      const PARAM_ARRAY_IS_CORRECT = Array.isArray(configObject.params) &&
           configObject.params.every((paramConfig) => {
             return typeof paramConfig === 'object' && paramConfig.name &&
                 paramConfig.description && paramConfig.type;
           })
-      return HAS_ALL_FIELDS && ARRAY_IS_CORRECT;
-    })
+      if (!PARAM_ARRAY_IS_CORRECT) {
+        return false;
+      }
+
+      const ALL_CLI_PARAM = [...(configObject.cli.matchAll(/<.+?>/g))]
+          .map(match => match[0].replace(/</g, '').replace(/>/g, ''));
+      const INCLUDED_CLI_PARAMS =
+          Object.getOwnPropertyNames(configObject.cliParams);
+      const ALL_CLI_PARAMS_PRESENT =
+          ALL_CLI_PARAM.every((param) => INCLUDED_CLI_PARAMS.includes(param));
+      if (!ALL_CLI_PARAMS_PRESENT) {
+        return false;
+      }
+
+      return true;
+    });
+
     return this.#allValidConfigObject;
   }
 

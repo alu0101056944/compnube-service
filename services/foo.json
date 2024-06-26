@@ -7,5 +7,10 @@
       "description": "An arbitrary boolean",
       "type": "bool"
     }
-  ]
+  ],
+  "cli": "{binary}",
+  "cliParams": {
+  },
+  "acceptInputFiles": "true",
+  "hostIP": "10.6.131.168"
 }

@@ -75,12 +75,23 @@ export default class ServiceConfiguratorController {
 
       // validate args
       const argsValidator = new ServiceArgumentsValidator(allArgValue,
-          this.#activeConfig);
+        this.#activeConfig);
       // if all valid send json to server
       if (argsValidator.getInvalidArgs().length === 0) {
-        const jsonToSend = { args: {} };
+        // get values for cli args
+        const cliArgs = {};
+        Object.getOwnPropertyNames(this.#activeConfig.cliParams)
+            .forEach((cliParam, i) => {
+              const textField = document.querySelector(`#cliArgTextfield${i}`);
+              cliArgs[cliParam] = textField.value;    
+            });
+
+        const jsonToSend = { args: {}, cliArgs };
         for (let i = 0; i < ARG_AMOUNT; ++i) {
           jsonToSend.args[this.#activeConfig.params[i].name] = allArgValue[i];
+        }
+        for (let i = 0; i < CLI_ARG_AMOUNT; ++i) {
+          jsonToSend.cliArgs[this.#activeConfig.cliParams[i].name] = allArgValue[i];
         }
         jsonToSend.config = this.#activeConfig;
 

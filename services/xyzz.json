@@ -17,5 +17,10 @@
       "description": "An arbitrary float",
       "type": "float"
     }
-  ]
+  ],
+  "cli": "{binary}",
+  "cliParams": {
+  },
+  "acceptInputFiles": "true",
+  "hostIP": "10.6.131.168"
 }

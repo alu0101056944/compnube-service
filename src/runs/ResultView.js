@@ -33,18 +33,24 @@ export default class ResultView {
     this.#resultFilesDownloaded = true;
     document.querySelector(`#downloadButton${this.#id}`).disabled = true;
     document.querySelector(`#hasBeenDownloaded${this.#id}`)
-        .textContent = 'Already downloaded.';
+        .textContent = 'Sucessfuly downloaded.';
+  }
+
+  allowDownload() {
+    document.querySelector(`#downloadButton${this.#id}`).disabled = false;
+    document.querySelector(`#hasBeenDownloaded${this.#id}`)
+    .textContent = 'Ready for download.';
   }
 
   toString() {
     return `
         <div style="background-color: orange; padding: 9px 0px 9px 6px; margin-bottom: 5px;
             display: flex; flex-direction: row;">
-          <div style="width: 80%;">
+          <div style="width: 75%;">
             <b>${this.#config.name}(${this.#id}): </b>
             <span id="executionState${this.#id}">pending start</span>
           </div>
-          <div style="width: 20%";>
+          <div style="width: 25%";>
             <button id="downloadButton${this.#id}" disabled="true">
                 Download output files</button>
             <span id="hasBeenDownloaded${this.#id}"></span>

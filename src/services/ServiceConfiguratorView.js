@@ -26,9 +26,18 @@ export default class ServiceConfiguratorView {
       return `<span>${param.name} : ${param.type} -> ${param.description}</span>` +
           `<input type="text" id="argTextfield${i}"></input>`;
     });
+    const allCLIParamInputs = Object.getOwnPropertyNames(this.#config.cliParams)
+        .map((param, i) => {
+            return `<span>${param}</span>` +
+                `<input type="text" id="cliArgTextfield${i}"></input>`;
+        });
     return `
       <div style=display: flex; flex-direction: column; background-color: grey;>
-        <h1>Pass arguments for the service <span style="color:orange;">${this.#config.name}</span>:</h1>
+        <h1>Service launch configuration for <span style="color:orange;">${this.#config.name}</span>:</h1>
+        ${allCLIParamInputs.length > 0 ? '<h2>CLI Arguments:</h2>' : ''}
+        ${allCLIParamInputs.join('<br>')}
+        ${allCLIParamInputs.length > 0 ? '<br>' : ''}
+        <h2>Binary Arguments:</h2>
         ${allParamInputs.join('<br>')}
         <br>
         <button id='sendService'>Send to queue</button>

@@ -2,54 +2,27 @@
   "launchs": [
     {
       "args": {
-        "foo": "true"
+        "foo": "2"
       },
       "config": {
-        "name": "a service",
-        "description": "An arbitrary service.",
+        "name": "Another service",
+        "description": "Compute the sum of two numbers.",
         "params": [
           {
             "name": "foo",
-            "description": "An arbitrary boolean",
-            "type": "bool"
+            "description": "An arbitrary number",
+            "type": "integer"
           }
-        ]
+        ],
+        "cli": "mpi run -np <nodeAmount> <program>",
+        "cliParams": {
+          "nodeAmount": 4,
+          "program": "foo.bat"
+        },
+        "acceptInputFiles": "true",
+        "hostIP": "10.6.131.168"
       },
-      "id": 20
-    },
-    {
-      "args": {
-        "foo": "true"
-      },
-      "config": {
-        "name": "a service",
-        "description": "An arbitrary service.",
-        "params": [
-          {
-            "name": "foo",
-            "description": "An arbitrary boolean",
-            "type": "bool"
-          }
-        ]
-      },
-      "id": 21
-    },
-    {
-      "args": {
-        "foo": "true"
-      },
-      "config": {
-        "name": "a service",
-        "description": "An arbitrary service.",
-        "params": [
-          {
-            "name": "foo",
-            "description": "An arbitrary boolean",
-            "type": "bool"
-          }
-        ]
-      },
-      "id": 22
+      "id": 26
     },
     {
       "args": {
@@ -64,60 +37,16 @@
             "description": "An arbitrary number",
             "type": "integer"
           }
-        ]
+        ],
+        "cli": "mpi run -np <nodeAmount> <program>",
+        "cliParams": {
+          "nodeAmount": 4,
+          "program": "foo.bat"
+        },
+        "acceptInputFiles": "true",
+        "hostIP": "10.6.131.168"
       },
-      "id": 23
-    },
-    {
-      "args": {
-        "foo": "2"
-      },
-      "config": {
-        "name": "Another service",
-        "description": "Compute the sum of two numbers.",
-        "params": [
-          {
-            "name": "foo",
-            "description": "An arbitrary number",
-            "type": "integer"
-          }
-        ]
-      },
-      "id": 23
-    },
-    {
-      "args": {
-        "foo": "true"
-      },
-      "config": {
-        "name": "a service",
-        "description": "An arbitrary service.",
-        "params": [
-          {
-            "name": "foo",
-            "description": "An arbitrary boolean",
-            "type": "bool"
-          }
-        ]
-      },
-      "id": 24
-    },
-    {
-      "args": {
-        "foo": "3"
-      },
-      "config": {
-        "name": "Another service",
-        "description": "Compute the sum of two numbers.",
-        "params": [
-          {
-            "name": "foo",
-            "description": "An arbitrary number",
-            "type": "integer"
-          }
-        ]
-      },
-      "id": 25
+      "id": 26
     }
   ]
 }
