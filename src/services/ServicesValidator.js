@@ -39,7 +39,8 @@ export default class ServicesValidator {
     this.#allValidConfigObject = allConfigObject.filter((configObject) => {
       const HAS_ALL_FIELDS = 
           ['name', 'description', 'params', 'cli',
-            'cliParams', 'acceptInputFiles', 'hostIP']
+            'cliParams', 'acceptInputFiles', 'hostIP', 'binaryName',
+            'originalIP']
           .every(param => Object.getOwnPropertyNames(configObject).includes(param));
       if (!HAS_ALL_FIELDS) {
         return false;

@@ -32,7 +32,7 @@ export default class LaunchedServicesController {
           const spanOfExecutionState = document.querySelector(`#executionState${id}`);
           spanOfExecutionState.textContent = idToObject[id].executionState;
           
-          if (idToObject[id].executionState === 'Finished execution sucessfully.') {
+          if (idToObject[id].executionState === 'Finished execution sucessfully') {
             const response2 = await fetch(config.serverBaseURL + 'getavailablefiles/');
             const idToFilesAvailable = await response2.json();
             if (idToFilesAvailable.runsWithAvailableFiles[id] === 'true') {

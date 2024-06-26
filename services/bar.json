@@ -13,5 +13,7 @@
     "nodeAmount": 4
   },
   "acceptInputFiles": "true",
-  "hostIP": "10.6.131.168"
+  "hostIP": "10.6.131.168",
+  "binaryName": "bar.bat",
+  "originIP": "localhost"
 }

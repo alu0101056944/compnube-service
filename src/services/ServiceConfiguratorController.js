@@ -98,6 +98,9 @@ export default class ServiceConfiguratorController {
         const json = await request.json();
         jsonToSend.id = json.newId;
 
+        // I call this here to have the received id available as argument
+        this.#sendInputFiles(id);
+
         const buttonSend = document.querySelector('#sendService');
         buttonSend.disabled = true;
         setTimeout(() => {
@@ -128,6 +131,32 @@ export default class ServiceConfiguratorController {
     };
     const buttonSend = document.querySelector('#sendService');
     buttonSend.addEventListener('click', sendRequest);
+  }
+
+  async #sendInputFiles(id) {
+    const fileInput = document.querySelector('#inputFilesSelector');
+    const files = fileInput.files;
+    const formData = new FormData();
+    for (let i = 0; i < files.length; i++) {
+      formData.append('files', files[i]);
+    }
+    formData.append('id', id);
+    try {
+      const response = await fetch(config.serverBaseURL + 'pushinputfiles/', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (response.ok) {
+        const result = await response.text();
+        alert(result);
+      } else {
+        alert('Upload failed');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred');
+    }
   }
 
   getSelectedButton() {

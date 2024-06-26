@@ -21,11 +21,16 @@ import { readFile, writeFile } from 'fs/promises'
 import fs from 'fs/promises';
 
 import JSZip from 'jszip';
+import multer from 'multer';
 
 import ServicesLoader from '../src/services/ServicesLoader.js';
 import ServicesValidator from '../src/services/ServicesValidator.js';
 
+import Queue from '../src/jobs/queue.js';
+
 import { config } from '../src/config.js';
+
+import cors from 'cors';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,6 +48,19 @@ function execute() {
   application.use(express.static(PATH_TO_ROOT));
   application.use(express.static(PATH_TO_SRC));
   application.use(express.json());
+  application.use(cors());
+
+  // setup file storage.
+  const storage = multer.diskStorage({
+    destination: (request, file, cb) => {
+      cb(null, config.fileInputsPath + request.body.id + '/');
+    },
+    filename: (request, file, cb) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      cb(null, file.originalname);
+    }
+  });
+  const upload = multer({ storage: storage });
 
   application.listen(application.get('port'), '0.0.0.0', function() {
     const DEFAULT_START_MESSAGE =
@@ -61,9 +79,27 @@ function execute() {
     await writeFile('src/services/requestLaunchs.json',
         JSON.stringify(jsonWithRuns, null, 2));
 
-    // create updates folder for the request
+    // create updates file for the request
     const WRITE_PATH = config.requestUpdatesPath + request.body.id + '.json';
     await writeFile(WRITE_PATH, JSON.stringify({ updates: [] }));
+
+    // create downloads folder for the request
+    const WRITE_PATH_DOWNLOADS =
+        config.fileOutputsPath + request.body.id;
+    await fs.mkdir(WRITE_PATH_DOWNLOADS, { recursive: true });
+
+    // add the job to the host server queue
+    await fetch(`http://${request.body.hostIP}:8080/register/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: request.body,
+    });
+
+    // send the input files and the binary
+
+    const WRITE_PATH_BUSY = config.busyPath + request.body.id + '.json';
   });
 
   application.get('/services', async (request, response) => {
@@ -104,15 +140,39 @@ function execute() {
 
   application.get('/getupdates', async (request, response) => {
     const executionUpdates = {};
+
+    const fileWithRuns =
+        await readFile('src/services/requestLaunchs.json', 'utf-8');
+    const jsonWithRuns = JSON.parse(fileWithRuns);
+
     for (const run of jsonWithRuns.launchs) {
       const updatesFile = await readFile(config.requestUpdatesPath +
-          run.config.name + '_' + run.id + '.json');
+          run.id + '.json');
       const updatesFileJSON = JSON.parse(updatesFile);
-      const latestUpdate =
-          updatesFileJSON.updates[updatesFileJSON.updates.length - 1];
-      executionUpdates[run.id].executionState = latestUpdate.executionState;
+      if (updatesFileJSON.updates.length > 0) {
+        const latestUpdate =
+            updatesFileJSON.updates[updatesFileJSON.updates.length - 1];
+        executionUpdates[run.id].executionState = latestUpdate.executionState;
+      }
     }
-    response.json(JSON.parse(executionUpdates));
+
+    if (Object.getOwnPropertyNames(executionUpdates).length > 0) {
+      response.json(JSON.parse(executionUpdates));
+    } else {
+      response.json({});
+    }
+  });
+
+  // meant for the server to push here when something changes in the
+  // execution of the job.
+  application.post('/pushupdate', async (request, response) => {
+    const update = request.body;
+    
+    const updateFile =
+        await readFile(`${config.requestUpdatesPath}/${update.id}.json`, 'utf8');
+    const updateFileJSON = JSON.parse(updateFile);
+    updateFileJSON.updates.push({ executionState: update.executionState });
+    response.send('OK');
   });
 
   application.get('/getavailablefiles', async (request, response) => {
@@ -150,7 +210,7 @@ function execute() {
     });
   });
 
-  app.get('download/', async (request, response) => {
+  application.get('download/', async (request, response) => {
     const PATH = `jobDownloads/${request.body.id}/`;
 
     const files = await fs.readdir(PATH);
@@ -169,6 +229,13 @@ function execute() {
     response.set('Content-Type', 'application/zip');
     response.set('Content-Disposition', `attachment; filename=job_${request.body.id}_files.zip`);
     response.send(zipContent);
+  });
+
+  application.post('pushinputfiles/', upload.array('files', 10), async (request, response) => {
+    if (!request.files || request.files.length === 0) {
+      return response.status(400).send('No files uploaded.');
+    }
+    response.send(`${request.files.length} file(s) uploaded successfully!`);
   });
 }
 
