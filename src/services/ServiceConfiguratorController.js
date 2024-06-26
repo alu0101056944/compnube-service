@@ -65,6 +65,7 @@ export default class ServiceConfiguratorController {
   #sendArguments() {
     const buttonSend = document.querySelector('#sendService');
     buttonSend.addEventListener('click', async () => {
+      // get textfield arg values
       const allArgValue = [];
       const ARG_AMOUNT = this.#activeConfig.params.length;
       for (let i = 0; i < ARG_AMOUNT; ++i) {
@@ -72,20 +73,28 @@ export default class ServiceConfiguratorController {
         allArgValue.push(textField.value);
       }
 
+      // validate args
       const argsValidator = new ServiceArgumentsValidator(allArgValue,
           this.#activeConfig);
+      // if all valid send json to server
       if (argsValidator.getInvalidArgs().length === 0) {
-        const argsForJSON = {}
+        const argsToSend = {};
         for (let i = 0; i < ARG_AMOUNT; ++i) {
-          argsForJSON[this.#activeConfig.params[i].name] = allArgValue[i];
+          argsToSend[this.#activeConfig.params[i].name] = allArgValue[i];
         }
-        argsForJSON.config = this.#activeConfig;
+        argsToSend.config = this.#activeConfig;
+
+        // get new service request id
+        const request = await fetch(config.serverBaseURL + 'getnewservicerequestid/');
+        const json = await request.json();
+        argsToSend.id = json.newId;
+
         await fetch(config.serverBaseURL + 'execute/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(argsForJSON, null, 2),
+          body: JSON.stringify(argsToSend, null, 2),
         });
       } else {
         alert('Invalid arguments, please check the formatting. ' +

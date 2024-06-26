@@ -17,7 +17,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import process from 'process';
-import { readFile } from 'fs/promises';
+import { readFile, writeFile } from 'fs/promises'
 
 import formidable, { errors as formidableErrors } from 'formidable';
 
@@ -79,12 +79,32 @@ function execute() {
   });
 
   application.get('/services', async (request, response) => {
-    debugger;
     const serviceLoader = new ServicesLoader();
     const allServiceConfig = await serviceLoader.load()
     const serviceValidator = new ServicesValidator();
     const allValidServiceConfig = await serviceValidator.validate(allServiceConfig);
     response.json(allValidServiceConfig);
+  });
+
+  application.get('/getnewservicerequestid', async (request, response) => {
+    try {
+      const outputJSON = {};
+
+      debugger;
+      // create new unique service id and update the file with the latest id
+      const fileWithAmount =
+          await readFile('src/services/requestAmount.json', 'utf-8');
+      const jsonWithAmount = JSON.parse(fileWithAmount);
+      outputJSON.newId = jsonWithAmount.totalAmountOfServiceRequests + 1;
+      ++jsonWithAmount.totalAmountOfServiceRequests;
+      await writeFile('src/services/requestAmount.json',
+          JSON.stringify(jsonWithAmount, null, 2));
+  
+      response.json(outputJSON)
+    } catch (error) {
+      console.log('Failed to read or write the requestAmount.json file. ' +
+          'Unable to generate new service request id.' + error);
+    }
   });
 }
 
