@@ -136,7 +136,6 @@ export default class ServiceConfiguratorController {
   }
 
   async #sendInputFiles(id) {
-    console.log('sending files');
     const fileInput = document.querySelector('#inputFilesSelector');
     const files = fileInput.files;
     const formData = new FormData();
@@ -144,7 +143,6 @@ export default class ServiceConfiguratorController {
       formData.append('files', files[i]);
     }
 
-    console.log('id sent: ' + id);
     try {
       const response = await fetch(config.serverBaseURL + 'pushinputfiles/', {
         method: 'POST',

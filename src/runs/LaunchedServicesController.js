@@ -34,9 +34,17 @@ export default class LaunchedServicesController {
           spanOfExecutionState.textContent = idToObject[id].executionState;
           
           if (idToObject[id].executionState === 'Finished execution sucessfully') {
-            const response2 = await fetch(config.serverBaseURL + 'getavailablefiles/');
-            const idToFilesAvailable = await response2.json();
-            if (idToFilesAvailable.runsWithAvailableFiles[id] === 'true') {
+            const response2 = await fetch(config.serverBaseURL + 'getavailablefiles/',
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id }),
+              }
+            );
+            const info = await response2.json();
+            if (info.filesAvailabe === 'true') {
               const downloadButton =
                   document.querySelector(`#downloadButton${id}`);
               downloadButton.disabled = false;
@@ -44,7 +52,7 @@ export default class LaunchedServicesController {
 
                 // downwload the zip file.
                 try {
-                  const response3 = await fetch(config.serverBaseURL + 'download/');
+                  const response3 = await fetch(config.serverBaseURL + 'download/')
                   const blob = await response3.blob();
                   const url = window.URL.createObjectURL(blob);
                   const a = document.createElement('a');
@@ -86,7 +94,8 @@ export default class LaunchedServicesController {
       try {
         const response2 = await fetch(config.serverBaseURL + 'getruns/');
         const allRun = await response2.json();
-        const allResultView = allRun.launchs.map(run => new ResultView(run.config, run.id));
+        const allResultView = Object.values(allRun.launchs)
+            .map(run => new ResultView(run.config, run.id));
         const launchedServicesView = new LaunchedServicesView(allResultView);
         const divLaunchedServices = document.querySelector('#launchedServices');
         divLaunchedServices.innerHTML = launchedServicesView.toString();
