@@ -2,6 +2,9 @@
   "updates": [
     {
       "executionState": "Finished execution sucessfully"
+    },
+    {
+      "hasDownloadedOutputFiles": true
     }
   ]
 }

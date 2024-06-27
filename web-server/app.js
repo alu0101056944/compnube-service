@@ -71,6 +71,7 @@ function execute() {
   });
 
   application.post('/execute', async (request, response) => {
+    console.log('/execute called');
     console.log('Job request obtained');
 
     // register request on requestLaunchs
@@ -163,6 +164,7 @@ function execute() {
   });
 
   application.get('/services', async (request, response) => {
+    console.log('/services called');
     const serviceLoader = new ServicesLoader();
     const allServiceConfig = await serviceLoader.load()
     const serviceValidator = new ServicesValidator();
@@ -171,6 +173,7 @@ function execute() {
   });
 
   application.get('/getnewservicerequestid', async (request, response) => {
+    console.log('/getnewservicerequestid called');
     try {
       const outputJSON = {};
 
@@ -191,6 +194,7 @@ function execute() {
   });
 
   application.get('/getruns', async (request, response) => {
+    console.log('/getruns called');
     const fileWithRuns =
         await readFile('src/services/requestLaunchs.json', 'utf-8');
     const jsonWithRuns = JSON.parse(fileWithRuns);
@@ -199,6 +203,7 @@ function execute() {
   });
 
   application.get('/getupdates', async (request, response) => {
+    console.log('/getupdates called');
     const executionUpdates = {};
 
     const fileWithRuns =
@@ -227,6 +232,7 @@ function execute() {
   // meant for the server to push here when something changes in the
   // execution of the job.
   application.post('/pushupdate', async (request, response) => {
+    console.log('/pushupdate called');
     const update = request.body;
 
     console.log('Received /pushudate for ' + update.id);
@@ -240,55 +246,74 @@ function execute() {
   });
 
   application.post('/getavailablefiles', async (request, response) => {
+    console.log('/getavailablefiles called');
     const ID = request.body.id;
+    let hasDownloadedOutputFiles = false;
+    let hasFinishedExecutionSucessfully = false;
+    const PATH = config.requestUpdatesPath + ID + '.json';
+    const allUpdate = await readFile(PATH, 'utf8');
+    const allUpdateJSON = JSON.parse(allUpdate);
+    for (let i = 0; i < allUpdateJSON.updates.length; i++) {
+      if (allUpdateJSON.updates[i].hasDownloadedOutputFiles) {
+        hasDownloadedOutputFiles = true;
+      }
+      const SUCESS_STRING = "Finished execution sucessfully";
+      if (allUpdateJSON.updates[i].executionState === SUCESS_STRING) {
+        hasFinishedExecutionSucessfully = true;
+      }
+      if (hasDownloadedOutputFiles && hasFinishedExecutionSucessfully) {
+        break;
+      }
+    }
+    if (hasFinishedExecutionSucessfully) {
+      if (hasDownloadedOutputFiles) {
+        response.json({ filesAvailable: 'false' });
+      } else {
+        response.json({ filesAvailable: 'true' });
+      }
+    } else {
+      response.json({ filesAvailable: 'false' });
+    }
+  });
+
+  application.post('/download', async (request, response) => {
+    console.log('/download called');
     const runsFile = await readFile('src/services/requestLaunchs.json');
     const runsFileJSON = JSON.parse(runsFile);
-    const info = runsFileJSON.launchs[ID];
-    try {
-      console.log(`http://${info.config.hostAddress}/availableoutputfiles/`);
-      const response2 = await fetch(`http://${info.config.hostAddress}/availableoutputfiles/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(info, null, 2),
-      });
-      const json = await response2.json();
-      response.json({ filesAvailable: json.filesAvailable });
-    } catch (error) {
-      console.log('host /getavailable for ' + `${info.config.name}(${info.id})` +
-        ' did not execute sucessfully', error);
-      response.status(400).send('Failure');
-    }
-  });
-
-  application.post('/deletefiles', async (request, response) => {
-    const ID_TO_DELETE = request.body.id;
-    const runsFile = await readFile('src/services/requestLauchs.json');
-    const runsFileJSON = JSON.parse(runsFile);
-    const info = runsFileJSON.launchs[ID_TO_DELETE];
-    try {
-      const response = await fetch(`http://${info.hostAddress}/deletefiles/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(info, null, 2),
-      });
-      response.status(100).send('Ok!');
-    } catch (error) {
-      console.log('host /deletefiles for ' + `${info.config.name}(${info.id})` +
-        ' did not execute sucessfully', error);
-      response.status(400).send('Failure');
-    }
-  });
-
-  application.get('/download', async (request, response) => {
-    const runsFile = await readFile(config.servicesPath + 'requestLaunchs.json');
-    const runsFileJSON = JSON.parse(runsFile);
     const runInfo = runsFileJSON.launchs[request.body.id];
-    const response2 = await fetch(`http://${runInfo.hostAddress}/downloadoutput/`);
+    const response2 =
+        await fetch(`http://${runInfo.config.hostAddress}/downloadoutput/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id: request.body.id })
+        });
     const files = await response2.blob();
+
+    // tell host through server that it can delete the files now.
+    const HOST_ADDRESS = `http://${runInfo.config.hostAddress}/deletefiles/`;
+    const response3 = await fetch(HOST_ADDRESS, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(runInfo, null, 2)
+    });
+
+    if (response3.ok) {
+      const UPDATES_PATH = config.requestUpdatesPath + runInfo.id + '.json';
+      const allUpdate = await readFile(UPDATES_PATH, 'utf8');
+      const allUpdateJSON = JSON.parse(allUpdate);
+      allUpdateJSON.updates.push({ hasDownloadedOutputFiles: true });
+      await writeFile(UPDATES_PATH,
+          JSON.stringify(allUpdateJSON, null, 2));
+
+      console.log('Delete files sent response OK, disabling' +
+          ' download button.');
+    } else {
+      console.log('Failed to delete files. Files remain available.');
+    }
 
     response.set('Content-Type', 'application/zip');
     response.set('Content-Disposition', `attachment; filename=job_${request.body.id}_files.zip`);
@@ -298,6 +323,7 @@ function execute() {
   // called at the same time as /execute
   // id comes in a separate header
   application.post('/pushinputfiles', upload.array('files', 20), async (request, response) => {
+    console.log('/pushinputfiles called');
       if (!request.files || request.files.length === 0) {
         return response.status(400).send('No files uploaded.');
       }

@@ -122,7 +122,7 @@ export default class ServiceConfiguratorController {
           console.error('Error while executing the service request: ' + error);
         }
       } else {
-        alert('Invalid arguments, please check the formatting. ' +
+        console.log('Invalid arguments, please check the formatting. ' +
             'These are valid: ' +
             argsValidator.getValidArgs().map((arg) => arg.name).join(' ') +
             '. ' + 'These are invalid: ' +
@@ -154,13 +154,13 @@ export default class ServiceConfiguratorController {
       
       if (response.ok) {
         const result = await response.text();
-        alert(result);
+        console.log(result);
       } else {
-        alert('Upload failed');
+        console.log('Upload failed');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('An error occurred');
+      console.log('An error occurred');
     }
   }
 

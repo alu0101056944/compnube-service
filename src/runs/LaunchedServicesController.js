@@ -50,9 +50,15 @@ export default class LaunchedServicesController {
               downloadButton.disabled = false;
               downloadButton.addEventListener('click', async () => {
 
-                // downwload the zip file.
+                // download the zip file.
                 try {
-                  const response3 = await fetch(config.serverBaseURL + 'download/')
+                  const response3 = await fetch(config.serverBaseURL + 'download/', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: id })
+                  });
                   const blob = await response3.blob();
                   const url = window.URL.createObjectURL(blob);
                   const a = document.createElement('a');
@@ -62,26 +68,21 @@ export default class LaunchedServicesController {
                   document.body.appendChild(a);
                   a.click();
                   window.URL.revokeObjectURL(url);
+
+                  const response4 = await fetch(config.serverBaseURL +
+                      'getavailablefiles/', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: id })
+                  });
+                  const json = await response4.json();
+                  if (json.filesAvailable === 'false') {
+                    downloadButton.disabled = true;
+                  }
                 } catch (error) {
                   console.error('Download failed:', error);
-                }
-
-                // tell host through server that it can delete the files now.
-                const body = JSON.stringify({ id: id });
-                const response = await fetch(config.serverBaseURL + 'deletefiles/', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json'
-                  },
-                  body,
-                });
-
-                if (response.ok) {
-                  console.log('Delete files sent response OK, disabling' +
-                    ' download button.');
-                  downloadButton.disabled = true;
-                } else {
-                  console.log('Failed to delete files. Files remain available.');
                 }
               });
             }
