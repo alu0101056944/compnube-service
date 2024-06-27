@@ -228,29 +228,33 @@ function execute() {
   // execution of the job.
   application.post('/pushupdate', async (request, response) => {
     const update = request.body;
-    
-    const updateFile =
-        await readFile(`${config.requestUpdatesPath}/${update.id}.json`, 'utf8');
+
+    console.log('Received /pushudate for ' + update.id);
+
+    const UPDATE_PATH = `${config.requestUpdatesPath}/${update.id}.json`;
+    const updateFile = await readFile(UPDATE_PATH, 'utf8');
     const updateFileJSON = JSON.parse(updateFile);
     updateFileJSON.updates.push({ executionState: update.executionState });
+    await writeFile(UPDATE_PATH, JSON.stringify(updateFileJSON, null, 2));
     response.send('OK');
   });
 
-  application.get('/getavailablefiles', async (request, response) => {
-    const ID_TO_DELETE = request.body.id;
-    const runsFile = await readFile('src/services/requestLauchs.json');
+  application.post('/getavailablefiles', async (request, response) => {
+    const ID = request.body.id;
+    const runsFile = await readFile('src/services/requestLaunchs.json');
     const runsFileJSON = JSON.parse(runsFile);
-    const info = runsFileJSON.launchs[ID_TO_DELETE];
+    const info = runsFileJSON.launchs[ID];
     try {
-      const response = await fetch(`http://${info.hostAddress}/availableoutputfiles/`, {
-        method: 'GET',
+      console.log(`http://${info.config.hostAddress}/availableoutputfiles/`);
+      const response2 = await fetch(`http://${info.config.hostAddress}/availableoutputfiles/`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(info, null, 2),
       });
-      const json = await response.json();
-      response.json(JSON.stringify({ filesAvailable: json.filesAvailable }));
+      const json = await response2.json();
+      response.json({ filesAvailable: json.filesAvailable });
     } catch (error) {
       console.log('host /getavailable for ' + `${info.config.name}(${info.id})` +
         ' did not execute sucessfully', error);

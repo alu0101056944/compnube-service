@@ -27,6 +27,286 @@
         "originAddress": "localhost:8080"
       },
       "id": 69
+    },
+    "70": {
+      "args": {
+        "foo": "2"
+      },
+      "cliArgs": {
+        "nodeAmount": "1"
+      },
+      "config": {
+        "name": "Another service",
+        "description": "Compute the sum of two numbers.",
+        "params": [
+          {
+            "name": "foo",
+            "description": "An arbitrary number",
+            "type": "integer"
+          }
+        ],
+        "cli": "mpi run -np <nodeAmount> {binary}",
+        "cliParams": {
+          "nodeAmount": 4
+        },
+        "acceptInputFiles": "true",
+        "hostAddress": "localhost:8081",
+        "binaryName": "bar.bat",
+        "originAddress": "localhost:8080"
+      },
+      "id": 70
+    },
+    "71": {
+      "args": {
+        "foo": "2"
+      },
+      "cliArgs": {
+        "nodeAmount": "1"
+      },
+      "config": {
+        "name": "Another service",
+        "description": "Compute the sum of two numbers.",
+        "params": [
+          {
+            "name": "foo",
+            "description": "An arbitrary number",
+            "type": "integer"
+          }
+        ],
+        "cli": "mpi run -np <nodeAmount> {binary}",
+        "cliParams": {
+          "nodeAmount": 4
+        },
+        "acceptInputFiles": "true",
+        "hostAddress": "localhost:8081",
+        "binaryName": "bar.bat",
+        "originAddress": "localhost:8080"
+      },
+      "id": 71
+    },
+    "72": {
+      "args": {
+        "foo": "1"
+      },
+      "cliArgs": {
+        "nodeAmount": "2"
+      },
+      "config": {
+        "name": "Another service",
+        "description": "Compute the sum of two numbers.",
+        "params": [
+          {
+            "name": "foo",
+            "description": "An arbitrary number",
+            "type": "integer"
+          }
+        ],
+        "cli": "mpi run -np <nodeAmount> {binary}",
+        "cliParams": {
+          "nodeAmount": 4
+        },
+        "acceptInputFiles": "true",
+        "hostAddress": "localhost:8081",
+        "binaryName": "bar.bat",
+        "originAddress": "localhost:8080"
+      },
+      "id": 72
+    },
+    "73": {
+      "args": {
+        "foo": "2"
+      },
+      "cliArgs": {
+        "nodeAmount": "2"
+      },
+      "config": {
+        "name": "Another service",
+        "description": "Compute the sum of two numbers.",
+        "params": [
+          {
+            "name": "foo",
+            "description": "An arbitrary number",
+            "type": "integer"
+          }
+        ],
+        "cli": "mpi run -np <nodeAmount> {binary}",
+        "cliParams": {
+          "nodeAmount": 4
+        },
+        "acceptInputFiles": "true",
+        "hostAddress": "localhost:8081",
+        "binaryName": "bar.bat",
+        "originAddress": "localhost:8080"
+      },
+      "id": 73
+    },
+    "74": {
+      "args": {
+        "foo": "2"
+      },
+      "cliArgs": {
+        "nodeAmount": "2"
+      },
+      "config": {
+        "name": "Another service",
+        "description": "Compute the sum of two numbers.",
+        "params": [
+          {
+            "name": "foo",
+            "description": "An arbitrary number",
+            "type": "integer"
+          }
+        ],
+        "cli": "mpi run -np <nodeAmount> {binary}",
+        "cliParams": {
+          "nodeAmount": 4
+        },
+        "acceptInputFiles": "true",
+        "hostAddress": "localhost:8081",
+        "binaryName": "bar.bat",
+        "originAddress": "localhost:8080"
+      },
+      "id": 74
+    },
+    "75": {
+      "args": {
+        "foo": "2"
+      },
+      "cliArgs": {
+        "nodeAmount": "2"
+      },
+      "config": {
+        "name": "Another service",
+        "description": "Compute the sum of two numbers.",
+        "params": [
+          {
+            "name": "foo",
+            "description": "An arbitrary number",
+            "type": "integer"
+          }
+        ],
+        "cli": "mpi run -np <nodeAmount> {binary}",
+        "cliParams": {
+          "nodeAmount": 4
+        },
+        "acceptInputFiles": "true",
+        "hostAddress": "localhost:8081",
+        "binaryName": "bar.bat",
+        "originAddress": "localhost:8080"
+      },
+      "id": 75
+    },
+    "76": {
+      "args": {
+        "foo": "2"
+      },
+      "cliArgs": {
+        "nodeAmount": "2"
+      },
+      "config": {
+        "name": "Another service",
+        "description": "Compute the sum of two numbers.",
+        "params": [
+          {
+            "name": "foo",
+            "description": "An arbitrary number",
+            "type": "integer"
+          }
+        ],
+        "cli": "mpi run -np <nodeAmount> {binary}",
+        "cliParams": {
+          "nodeAmount": 4
+        },
+        "acceptInputFiles": "true",
+        "hostAddress": "localhost:8081",
+        "binaryName": "bar.bat",
+        "originAddress": "localhost:8080"
+      },
+      "id": 76
+    },
+    "77": {
+      "args": {
+        "foo": "2"
+      },
+      "cliArgs": {
+        "nodeAmount": "2"
+      },
+      "config": {
+        "name": "Another service",
+        "description": "Compute the sum of two numbers.",
+        "params": [
+          {
+            "name": "foo",
+            "description": "An arbitrary number",
+            "type": "integer"
+          }
+        ],
+        "cli": "mpi run -np <nodeAmount> {binary}",
+        "cliParams": {
+          "nodeAmount": 4
+        },
+        "acceptInputFiles": "true",
+        "hostAddress": "localhost:8081",
+        "binaryName": "bar.bat",
+        "originAddress": "localhost:8080"
+      },
+      "id": 77
+    },
+    "78": {
+      "args": {
+        "foo": "2"
+      },
+      "cliArgs": {
+        "nodeAmount": "2"
+      },
+      "config": {
+        "name": "Another service",
+        "description": "Compute the sum of two numbers.",
+        "params": [
+          {
+            "name": "foo",
+            "description": "An arbitrary number",
+            "type": "integer"
+          }
+        ],
+        "cli": "mpi run -np <nodeAmount> {binary}",
+        "cliParams": {
+          "nodeAmount": 4
+        },
+        "acceptInputFiles": "true",
+        "hostAddress": "localhost:8081",
+        "binaryName": "bar.bat",
+        "originAddress": "localhost:8080"
+      },
+      "id": 78
+    },
+    "79": {
+      "args": {
+        "foo": "2"
+      },
+      "cliArgs": {
+        "nodeAmount": "2"
+      },
+      "config": {
+        "name": "Another service",
+        "description": "Compute the sum of two numbers.",
+        "params": [
+          {
+            "name": "foo",
+            "description": "An arbitrary number",
+            "type": "integer"
+          }
+        ],
+        "cli": "mpi run -np <nodeAmount> {binary}",
+        "cliParams": {
+          "nodeAmount": 4
+        },
+        "acceptInputFiles": "true",
+        "hostAddress": "localhost:8081",
+        "binaryName": "bar.bat",
+        "originAddress": "localhost:8080"
+      },
+      "id": 79
     }
   }
 }
