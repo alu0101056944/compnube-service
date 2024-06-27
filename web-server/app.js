@@ -26,8 +26,6 @@ import multer from 'multer';
 import ServicesLoader from '../src/services/ServicesLoader.js';
 import ServicesValidator from '../src/services/ServicesValidator.js';
 
-import Queue from '../src/jobs/queue.js';
-
 import { config } from '../src/config.js';
 
 import cors from 'cors';

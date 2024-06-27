@@ -23,6 +23,7 @@ export default class LaunchedServicesController {
    */
   constructor(allResult) {
     this.#allResult = allResult;
+    const buttonUpdate = document.querySelector('#updateLaunched');
 
     const getUpdates = async () => {
       try {
@@ -79,7 +80,7 @@ export default class LaunchedServicesController {
       } catch (error) {
         console.error('Error while fetching runs: ' + error);
       }
-    }
+    };
 
     const substituteLaunchedServicesList = async () => {
       try {
@@ -92,13 +93,17 @@ export default class LaunchedServicesController {
         const buttonUpdate = document.querySelector('#updateLaunched');
         buttonUpdate.addEventListener('click', substituteLaunchedServicesList);
 
+        buttonUpdate.disabled = true;
+        setTimeout(() => {
+          buttonUpdate.disabled = false
+        }, 2000);
+
         await getUpdates();
       } catch (error) {
         console.error('Error while fetching runs: ' + error);
       }
     };
 
-    const buttonUpdate = document.querySelector('#updateLaunched');
     buttonUpdate.addEventListener('click', substituteLaunchedServicesList);
   }
 }
