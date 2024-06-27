@@ -19,7 +19,7 @@ import { fileURLToPath } from 'url';
 import process from 'process';
 import { readFile, writeFile } from 'fs/promises'
 import fs from 'fs/promises';
-import { mkdirSync, readFile } from 'fs';
+import { mkdirSync, readFileSync } from 'fs';
 
 import JSZip from 'jszip';
 import multer from 'multer';
@@ -96,43 +96,37 @@ function execute() {
 
     try {
       // add the job to the host server queue
-      await fetch(`http://${request.body.hostAddress}/register/`, {
+      await fetch(`http://${request.body.config.hostAddress}/register/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: request.body,
+        body: JSON.stringify(request.body, null, 2),
       });
 
       const formData = new FormData();
 
       // attach the binary
-      const binaryFile = await readfile(config.servicesPath +
+      const binaryFile = await readFile(config.servicesPath +
           request.body.config.binaryName);
-      form.append('files', binaryFile, request.body.config.binaryName);
-
-      // attach the input files
-      fs.readdir(config.fileInputsPath + request.body.id, (error, files) => {
-        if (error) {
-          console.error('Cannot read input files. Error occurred while ' +
-              'reading the folder:', error);
-        } else {
-          files.forEach(file => {
-            const FILE_PATH =
-                config.fileInputsPath + request.body.id + '/' + `${file}`;
-            readFile(FILE_PATH, null, (err, data) => {
-              if (err) {
-                console.log('Could not read an input file of the service run: ' +
-                    FILE_PATH);
-                return;
-              }
-              form.append('files', data, file);
-            });
-          });
-        }
+      formData.append('files', binaryFile, {
+        filename: 'file.txt', // The file name to be used in the form
+        contentType: 'text/plain', // Adjust the MIME type as needed
       });
 
-      const response = await fetch('http://' + request.body.hostAddress +
+      // attach the input files
+      const allFileName = await fs.readdir(config.fileInputsPath + request.body.id)
+      for (const fileName of allFileName) {
+        const FILE_PATH =
+            config.fileInputsPath + request.body.id + '/' + `${fileName}`;
+        const FILE_CONTENT = readFileSync(FILE_PATH);
+        formData.append('files', FILE_CONTENT, {
+          filename: 'file2.txt', // The file name to be used in the form
+          contentType: 'text/plain', // Adjust the MIME type as needed
+        });
+      }
+
+      const response = await fetch('http://' + request.body.config.hostAddress +
           '/pushinputfiles/', {
         method: 'POST',
         headers: {
@@ -143,15 +137,16 @@ function execute() {
 
       if (response.ok) {
         const result = await response.text();
-        alert(result);
+        console.log('Response ok: ' + result);
       } else {
-        alert('Upload to host failed.');
+        const result = await response.text();
+        console.log('Upload to host failed: ' + result);
       }
 
     } catch (error) {
       console.error('Execution failure: could not connect with the host' +
         ' or could not upload the input files. Service run: ' +
-        request.body.config.name + '(' + request.body.id + ') ');
+        request.body.config.name + '(' + request.body.id + ') ', error);
       const updatesFile =
           await readFile(config.requestUpdatesPath + request.body.id + '.json',
               'utf8');
@@ -246,49 +241,54 @@ function execute() {
   });
 
   application.get('/getavailablefiles', async (request, response) => {
-    
-    const idToFilesAvailable =
-        await readFile('./src/runs/id_to_files_available.json', 'utf-8');
-    response.json(JSON.parse(idToFilesAvailable));
+    const ID_TO_DELETE = request.body.id;
+    const runsFile = await readFile('src/services/requestLauchs.json');
+    const runsFileJSON = JSON.parse(runsFile);
+    const info = runsFileJSON.launchs[ID_TO_DELETE];
+    try {
+      const response = await fetch(`http://${info.hostAddress}/availableoutputfiles/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(info, null, 2),
+      });
+      const json = await response.json();
+      response.json(JSON.stringify({ filesAvailable: json.filesAvailable }));
+    } catch (error) {
+      console.log('host /getavailable for ' + `${info.config.name}(${info.id})` +
+        ' did not execute sucessfully', error);
+      response.status(400).send('Failure');
+    }
   });
 
   application.post('/deletefiles', async (request, response) => {
     const ID_TO_DELETE = request.body.id;
-    const idToFilesAvailable =
-      await readFile('./src/runs/id_to_files_available.json', 'utf-8');
-    const newIdToFilesAvailable = JSON.parse(idToFilesAvailable);
-    newIdToFilesAvailable.runsWithAvailableFiles[ID_TO_DELETE] = 'false';
-    await writeFile('./src/runs/id_to_files_available.json',
-          newIdToFilesAvailable);
-
-    fs.readdir(`./jobDownloads/${ID_TO_DELETE}/`, (error, files) => {
-      if (error) {
-        console.error('Cannot delete output files. Error occurred while ' +
-            'reading the folder:', error);
-      } else {
-        files.forEach(file => {
-          const FILE_PATH = `./jobDownloads/${ID_TO_DELETE}/${file}`;
-          fs.unlink(FILE_PATH, (unlinkError) => {
-            if (unlinkError) {
-              console.error(`Error occurred while deleting ${FILE_PATH}:`,
-                  unlinkError);
-            } else {
-              console.log(`${FILE_PATH} deleted successfully!`);
-            }
-          });
-        });
-      }
-    });
+    const runsFile = await readFile('src/services/requestLauchs.json');
+    const runsFileJSON = JSON.parse(runsFile);
+    const info = runsFileJSON.launchs[ID_TO_DELETE];
+    try {
+      const response = await fetch(`http://${info.hostAddress}/deletefiles/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(info, null, 2),
+      });
+      response.status(100).send('Ok!');
+    } catch (error) {
+      console.log('host /deletefiles for ' + `${info.config.name}(${info.id})` +
+        ' did not execute sucessfully', error);
+      response.status(400).send('Failure');
+    }
   });
 
   application.get('/download', async (request, response) => {
-    const PATH = `${config.fileOutputsPath}${request.body.id}/`;
-
     const runsFile = await readFile(config.servicesPath + 'requestLaunchs.json');
     const runsFileJSON = JSON.parse(runsFile);
     const runInfo = runsFileJSON.launchs[request.body.id];
-    const response = await fetch(`http://${runInfo.hostAddress}/downloadoutput/`);
-    const files = await response.blob();
+    const response2 = await fetch(`http://${runInfo.hostAddress}/downloadoutput/`);
+    const files = await response2.blob();
 
     response.set('Content-Type', 'application/zip');
     response.set('Content-Disposition', `attachment; filename=job_${request.body.id}_files.zip`);

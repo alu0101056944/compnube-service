@@ -44,7 +44,7 @@ export default class LaunchedServicesController {
               }
             );
             const info = await response2.json();
-            if (info.filesAvailabe === 'true') {
+            if (info.filesAvailable === 'true') {
               const downloadButton =
                   document.querySelector(`#downloadButton${id}`);
               downloadButton.disabled = false;
@@ -66,8 +66,8 @@ export default class LaunchedServicesController {
                   console.error('Download failed:', error);
                 }
 
+                // tell host through server that it can delete the files now.
                 const body = JSON.stringify({ id: id });
-                // tell server that it can delete the files now.
                 const response = await fetch(config.serverBaseURL + 'deletefiles/', {
                   method: 'POST',
                   headers: {
@@ -77,9 +77,11 @@ export default class LaunchedServicesController {
                 });
 
                 if (response.ok) {
-                  console.log('delete files sent response OK, disabling' +
+                  console.log('Delete files sent response OK, disabling' +
                     ' download button.');
                   downloadButton.disabled = true;
+                } else {
+                  console.log('Failed to delete files. Files remain available.');
                 }
               });
             }
