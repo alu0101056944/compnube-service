@@ -40,7 +40,7 @@ export default class ServicesValidator {
       const HAS_ALL_FIELDS = 
           ['name', 'description', 'params', 'cli',
             'cliParams', 'acceptInputFiles', 'hostIP', 'binaryName',
-            'originalIP']
+            'originIP']
           .every(param => Object.getOwnPropertyNames(configObject).includes(param));
       if (!HAS_ALL_FIELDS) {
         return false;

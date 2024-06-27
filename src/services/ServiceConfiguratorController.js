@@ -99,7 +99,9 @@ export default class ServiceConfiguratorController {
         jsonToSend.id = json.newId;
 
         // I call this here to have the received id available as argument
-        this.#sendInputFiles(id);
+        if (this.#activeConfig.acceptInputFiles === 'true') {
+          this.#sendInputFiles(json.id);
+        }
 
         const buttonSend = document.querySelector('#sendService');
         buttonSend.disabled = true;

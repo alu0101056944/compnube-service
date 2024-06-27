@@ -27,7 +27,6 @@ async function main() {
     const allServiceConfig = await response.json();
     const divServiceList = document.querySelector('#divServiceList');
     for (const config of allServiceConfig) {
-      console.log('adding');
       divServiceList.innerHTML += new ServiceView(config).toString();
     }
     const serviceConfiguratorController =

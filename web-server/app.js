@@ -88,18 +88,30 @@ function execute() {
         config.fileOutputsPath + request.body.id;
     await fs.mkdir(WRITE_PATH_DOWNLOADS, { recursive: true });
 
-    // add the job to the host server queue
-    await fetch(`http://${request.body.hostIP}:8080/register/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: request.body,
-    });
+    try {
+      // add the job to the host server queue
+      await fetch(`http://${request.body.hostIP}:8080/register/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: request.body,
+      });
+    } catch (error) {
+      console.error('Execution failure: could not connect with the host. ' +
+        request.body.config.name + '(' + request.body.id + ') ');
+      const updatesFile =
+          await readFile(config.requestUpdatesPath + request.body.id + '.json',
+              'utf8');
+      const updatesFileJSON = JSON.parse(updatesFile);
+      updatesFileJSON.updates.push({
+        executionState: 'Failure: failed to connect to service host.',
+      });
+      await writeFile(config.requestUpdatesPath + request.body.id + '.json',
+          JSON.stringify(updatesFileJSON, null, 2));
+    }
 
     // send the input files and the binary
-
-    const WRITE_PATH_BUSY = config.busyPath + request.body.id + '.json';
   });
 
   application.get('/services', async (request, response) => {
@@ -152,12 +164,13 @@ function execute() {
       if (updatesFileJSON.updates.length > 0) {
         const latestUpdate =
             updatesFileJSON.updates[updatesFileJSON.updates.length - 1];
+        executionUpdates[run.id] ??= {};
         executionUpdates[run.id].executionState = latestUpdate.executionState;
       }
     }
 
     if (Object.getOwnPropertyNames(executionUpdates).length > 0) {
-      response.json(JSON.parse(executionUpdates));
+      response.json(executionUpdates);
     } else {
       response.json({});
     }
