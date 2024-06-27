@@ -19,6 +19,7 @@ import { fileURLToPath } from 'url';
 import process from 'process';
 import { readFile, writeFile } from 'fs/promises'
 import fs from 'fs/promises';
+import { mkdirSync } from 'fs';
 
 import JSZip from 'jszip';
 import multer from 'multer';
@@ -51,10 +52,11 @@ function execute() {
   // setup file storage.
   const storage = multer.diskStorage({
     destination: (request, file, cb) => {
-      cb(null, config.fileInputsPath + request.body.id + '/');
+      const PATH = config.fileInputsPath + request.headers['x-service-id'];
+      mkdirSync(PATH, { recursive: true });
+      cb(null, PATH);
     },
     filename: (request, file, cb) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
       cb(null, file.originalname);
     }
   });
@@ -86,8 +88,15 @@ function execute() {
         config.fileOutputsPath + request.body.id;
     await fs.mkdir(WRITE_PATH_DOWNLOADS, { recursive: true });
 
+    // create file inputs folder for the request
+    const WRITE_PATH_FILE_INPUTS =
+        config.fileInputsPath + request.body.id;
+    await fs.mkdir(WRITE_PATH_FILE_INPUTS, { recursive: true });
+
+    // send input files
+
+    // add the job to the host server queue
     try {
-      // add the job to the host server queue
       await fetch(`http://${request.body.hostIP}:8080/register/`, {
         method: 'POST',
         headers: {
@@ -192,7 +201,7 @@ function execute() {
     response.json(JSON.parse(idToFilesAvailable));
   });
 
-  application.post('deletefiles/', async (request, response) => {
+  application.post('/deletefiles', async (request, response) => {
     const ID_TO_DELETE = request.body.id;
     const idToFilesAvailable =
       await readFile('./src/runs/id_to_files_available.json', 'utf-8');
@@ -221,7 +230,7 @@ function execute() {
     });
   });
 
-  application.get('download/', async (request, response) => {
+  application.get('/download', async (request, response) => {
     const PATH = `jobDownloads/${request.body.id}/`;
 
     const files = await fs.readdir(PATH);
@@ -242,12 +251,13 @@ function execute() {
     response.send(zipContent);
   });
 
-  application.post('pushinputfiles/', upload.array('files', 10), async (request, response) => {
+  application.post('/pushinputfiles', upload.array('files', 20), async (request, response) => {
     if (!request.files || request.files.length === 0) {
       return response.status(400).send('No files uploaded.');
     }
     response.send(`${request.files.length} file(s) uploaded successfully!`);
   });
+
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

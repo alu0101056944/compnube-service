@@ -100,7 +100,7 @@ export default class ServiceConfiguratorController {
 
         // I call this here to have the received id available as argument
         if (this.#activeConfig.acceptInputFiles === 'true') {
-          this.#sendInputFiles(json.id);
+          this.#sendInputFiles(jsonToSend.id);
         }
 
         const buttonSend = document.querySelector('#sendService');
@@ -136,16 +136,21 @@ export default class ServiceConfiguratorController {
   }
 
   async #sendInputFiles(id) {
+    console.log('sending files');
     const fileInput = document.querySelector('#inputFilesSelector');
     const files = fileInput.files;
     const formData = new FormData();
     for (let i = 0; i < files.length; i++) {
       formData.append('files', files[i]);
     }
-    formData.append('id', id);
+
+    console.log('id sent: ' + id);
     try {
       const response = await fetch(config.serverBaseURL + 'pushinputfiles/', {
         method: 'POST',
+        headers: {
+          'X-Service-ID': id
+        },
         body: formData
       });
       
