@@ -84,7 +84,8 @@ function execute() {
 
     // create updates file for the request
     const WRITE_PATH = config.requestUpdatesPath + request.body.id + '.json';
-    await writeFile(WRITE_PATH, JSON.stringify({ updates: [] }));
+    const firstUpdate = { executionState: 'Execution pending' };
+    await writeFile(WRITE_PATH, JSON.stringify({ updates: [firstUpdate] }));
 
     // create downloads folder for the request
     const WRITE_PATH_DOWNLOADS =
@@ -211,14 +212,19 @@ function execute() {
     const jsonWithRuns = JSON.parse(fileWithRuns);
 
     for (const run of Object.values(jsonWithRuns.launchs)) {
+      executionUpdates[run.id] ??= {}
+
       const updatesFile = await readFile(config.requestUpdatesPath +
           run.id + '.json');
       const updatesFileJSON = JSON.parse(updatesFile);
-      if (updatesFileJSON.updates.length > 0) {
-        const latestUpdate =
-            updatesFileJSON.updates[updatesFileJSON.updates.length - 1];
-        executionUpdates[run.id] ??= {};
-        executionUpdates[run.id].executionState = latestUpdate.executionState;
+      for (const update of updatesFileJSON.updates) {
+        if (update.executionState) {
+          executionUpdates[run.id].executionState = update.executionState;
+        }
+        if (update.hasDownloadedOutputFiles) {
+          executionUpdates[run.id].hasDownloadedOutputFiles =
+              update.hasDownloadedOutputFiles;
+        }
       }
     }
 

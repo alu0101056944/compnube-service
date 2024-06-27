@@ -44,6 +44,7 @@ async function main() {
     const divLaunchedServices = document.querySelector('#launchedServices');
     divLaunchedServices.innerHTML = launchedServicesView.toString();
     const launchedServicesController = new LaunchedServicesController(allRun);
+    await launchedServicesController.getUpdates();
   } catch (error) {
     console.error('Error while fetching runs: ' + error);
   }
