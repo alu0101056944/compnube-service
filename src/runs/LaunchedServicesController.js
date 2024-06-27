@@ -44,7 +44,7 @@ export default class LaunchedServicesController {
               }
             );
             const info = await response2.json();
-            if (info.filesAvailable === 'true') {
+            if (response2.ok && info.filesAvailable === 'true') {
               const downloadButton =
                   document.querySelector(`#downloadButton${id}`);
               downloadButton.disabled = false;

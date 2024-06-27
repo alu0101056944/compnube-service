@@ -292,6 +292,7 @@ function execute() {
   });
 
   // called at the same time as /execute
+  // id comes in a separate header
   application.post('/pushinputfiles', upload.array('files', 20), async (request, response) => {
       if (!request.files || request.files.length === 0) {
         return response.status(400).send('No files uploaded.');
