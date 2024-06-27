@@ -20,10 +20,11 @@ import process from 'process';
 import { readFile, writeFile } from 'fs/promises'
 import fs from 'fs/promises';
 import { mkdirSync, readFileSync } from 'fs';
+import { openAsBlob } from 'fs';
+import { lookup } from "mime-types"
 
 import JSZip from 'jszip';
 import multer from 'multer';
-import FormData from 'form-data';
 
 import ServicesLoader from '../src/services/ServicesLoader.js';
 import ServicesValidator from '../src/services/ServicesValidator.js';
@@ -107,12 +108,11 @@ function execute() {
       const formData = new FormData();
 
       // attach the binary
-      const binaryFile = await readFile(config.servicesPath +
-          request.body.config.binaryName);
-      formData.append('files', binaryFile, {
-        filename: 'file.txt', // The file name to be used in the form
-        contentType: 'text/plain', // Adjust the MIME type as needed
-      });
+      const BINARY_PATH = config.servicesPath +
+          request.body.config.binaryName;
+      const binaryFile = await readFile(BINARY_PATH);
+      const binaryFileBlob = new Blob([binaryFile], { type: lookup(BINARY_PATH) });
+      formData.append('files', binaryFileBlob, request.body.config.binaryName);
 
       // attach the input files
       const allFileName = await fs.readdir(config.fileInputsPath + request.body.id)
@@ -120,13 +120,11 @@ function execute() {
         const FILE_PATH =
             config.fileInputsPath + request.body.id + '/' + `${fileName}`;
         const FILE_CONTENT = readFileSync(FILE_PATH);
-        formData.append('files', FILE_CONTENT, {
-          filename: 'file2.txt', // The file name to be used in the form
-          contentType: 'text/plain', // Adjust the MIME type as needed
-        });
+        const BLOB = new Blob([FILE_CONTENT], {type: lookup(FILE_PATH)});
+        formData.append('files', BLOB, fileName);
       }
 
-      const response = await fetch('http://' + request.body.config.hostAddress +
+      const response2 = await fetch('http://' + request.body.config.hostAddress +
           '/pushinputfiles/', {
         method: 'POST',
         headers: {
@@ -135,11 +133,11 @@ function execute() {
         body: formData
       });
 
-      if (response.ok) {
-        const result = await response.text();
+      if (response2.ok) {
+        const result = await response2.text();
         console.log('Response ok: ' + result);
       } else {
-        const result = await response.text();
+        const result = await response2.text();
         console.log('Upload to host failed: ' + result);
       }
 
@@ -236,8 +234,6 @@ function execute() {
     const updateFileJSON = JSON.parse(updateFile);
     updateFileJSON.updates.push({ executionState: update.executionState });
     response.send('OK');
-
-
   });
 
   application.get('/getavailablefiles', async (request, response) => {
