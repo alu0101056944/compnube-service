@@ -1,0 +1,11 @@
+{
+  "name": "Touch and write",
+  "description": "create a sample file.",
+  "params": [],
+  "cli": "{binary}",
+  "cliParams": {},
+  "acceptInputFiles": "false",
+  "hostAddress": "192.168.1.133:8081",
+  "binaryName": "touch_and_write.bash",
+  "originAddress": "192.168.1.129:8080"
+}

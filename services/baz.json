@@ -1,0 +1,19 @@
+{
+  "name": "A service that doesn't have a binary",
+  "description": "Placeholder description.",
+  "params": [
+    {
+      "name": "foo",
+      "description": "An arbitrary string",
+      "type": "string"
+    }
+  ],
+  "cli": "mpi run -np <nodeAmount> {binary}",
+  "cliParams": {
+    "nodeAmount": 4
+  },
+  "acceptInputFiles": "true",
+  "hostAddress": "localhost:8081",
+  "binaryName": "bar.bat",
+  "originAddress": "localhost:8080"
+}

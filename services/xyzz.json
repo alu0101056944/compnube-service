@@ -1,0 +1,28 @@
+{
+  "name": "Large service",
+  "description": "An arbitrary service but with more parameters.",
+  "params": [
+    {
+      "name": "foo",
+      "description": "An arbitrary boolean",
+      "type": "bool"
+    },
+    {
+      "name": "bar",
+      "description": "An arbitrary integer",
+      "type": "integer"
+    },
+    {
+      "name": "baz",
+      "description": "An arbitrary float",
+      "type": "float"
+    }
+  ],
+  "cli": "{binary}",
+  "cliParams": {
+  },
+  "acceptInputFiles": "false",
+  "hostAddress": "localhost:8081",
+  "binaryName": "bar.bat",
+  "originAddress": "localhost:8080"
+}

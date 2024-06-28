@@ -1,0 +1,11 @@
+{
+  "name": "ls",
+  "description": "Show files in the working directory of the host.",
+  "params": [],
+  "cli": "{binary}",
+  "cliParams": {},
+  "acceptInputFiles": "false",
+  "hostAddress": "192.168.1.133:8081",
+  "binaryName": "ls.bash",
+  "originAddress": "192.168.1.129:8080"
+}
