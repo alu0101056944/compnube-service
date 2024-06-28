@@ -503,6 +503,42 @@
         "originAddress": "localhost:8080"
       },
       "id": 19
+    },
+    "20": {
+      "args": {},
+      "cliArgs": {},
+      "config": {
+        "name": "ls",
+        "description": "Show files in the working directory of the host.",
+        "params": [],
+        "cli": "{binary}",
+        "cliParams": {},
+        "acceptInputFiles": "false",
+        "hostAddress": "192.168.1.133:8081",
+        "binaryName": "ls.bash",
+        "originAddress": "192.168.1.129:8080"
+      },
+      "id": 20
+    },
+    "21": {
+      "args": {},
+      "cliArgs": {
+        "inputImagePath": "input.jpg"
+      },
+      "config": {
+        "name": "parallel openmp cpp oil image algorithm",
+        "description": "Given an image, process it to get an oily version.",
+        "params": [],
+        "cli": "{binary} <inputImagePath>",
+        "cliParams": {
+          "inputImagePath": "foo"
+        },
+        "acceptInputFiles": "true",
+        "hostAddress": "192.168.1.133:8081",
+        "binaryName": "main_parallel",
+        "originAddress": "192.168.1.129:8080"
+      },
+      "id": 21
     }
   }
 }
