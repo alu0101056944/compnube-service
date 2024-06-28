@@ -4,7 +4,7 @@
       "executionState": "Execution pending"
     },
     {
-      "executionState": "Finished execution sucessfully"
+      "executionState": "Failure: failed to connect to service host."
     }
   ]
 }
