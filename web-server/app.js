@@ -289,11 +289,10 @@ function execute() {
     const runInfo = runsFileJSON.launchs[request.body.id];
     const response2 =
         await fetch(`http://${runInfo.config.hostAddress}/downloadoutput/`, {
-          method: 'POST',
+          method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
+            'X-Service-ID': request.body.id,
           },
-          body: JSON.stringify({ id: request.body.id })
         });
     const files = await response2.blob();
 
@@ -321,9 +320,10 @@ function execute() {
       console.log('Failed to delete files. Files remain available.');
     }
 
-    response.set('Content-Type', 'application/zip');
-    response.set('Content-Disposition', `attachment; filename=job_${request.body.id}_files.zip`);
-    response.send(files);
+    // to resend the same blob
+    response.type(files.type);
+    const buf = await files.arrayBuffer();
+    response.send(Buffer.from(buf));
   });
 
   // called at the same time as /execute

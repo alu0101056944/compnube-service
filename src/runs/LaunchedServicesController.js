@@ -80,8 +80,8 @@ export default class LaunchedServicesController {
             downloadButton.disabled = false;
             downloadButton.addEventListener('click', async () => {
 
-              // download the zip file.
               try {
+                // download the zip file.
                 const response3 = await fetch(config.serverBaseURL + 'download/', {
                   method: 'POST',
                   headers: {
@@ -99,6 +99,7 @@ export default class LaunchedServicesController {
                 a.click();
                 window.URL.revokeObjectURL(url);
 
+                // update downloadButton disabled state
                 const response4 = await fetch(config.serverBaseURL +
                     'getavailablefiles/', {
                   method: 'POST',
