@@ -17,10 +17,9 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import process from 'process';
-import { readFile, writeFile } from 'fs/promises'
+import { readFile, writeFile, access } from 'fs/promises'
 import fs from 'fs/promises';
 import { mkdirSync, readFileSync } from 'fs';
-import { openAsBlob } from 'fs';
 import { lookup } from "mime-types"
 
 import JSZip from 'jszip';
@@ -39,7 +38,7 @@ const __dirname = path.dirname(__filename);
 /**
  * @summary Configure and run the webserver.
  */
-function execute() {
+async function execute() {
   const application = express();
 
   application.set('port', 8080);
@@ -50,6 +49,30 @@ function execute() {
   application.use(express.static(PATH_TO_SRC));
   application.use(express.json());
   application.use(cors());
+
+  // write a fresh requestLaunchs.json if needed
+  try {
+    await access('src/services/requestLaunchs.json', fs.constants.F_OK);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      const TEMPLATE = JSON.stringify({ launchs: [] }, null, 2);
+      await writeFile('src/services/requestLaunchs.json', TEMPLATE);
+    } else {
+      console.error('Could not check whether requestLaunchs.json exists:' + error);
+    }
+  }
+
+  // write a fresh requestAmount.json if needed
+  try {
+    await access('src/services/requestAmount.json', fs.constants.F_OK);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      const TEMPLATE = JSON.stringify({ totalAmountOfServiceRequests: 1 }, null, 2);
+      await writeFile('src/services/requestAmount.json', TEMPLATE);
+    } else {
+      console.error('Could not check whether requestLaunchs.json exists:' + error);
+    }
+  }
 
   // setup file storage.
   const storage = multer.diskStorage({

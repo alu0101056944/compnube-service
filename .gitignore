@@ -5,6 +5,9 @@ jobDownloads/*
 jobUploads/*
 !jobUploads/README.md
 
+src/services/requestLaunchs.json
+src/services/requestAmount.json
+
 # Logs
 logs
 *.log
