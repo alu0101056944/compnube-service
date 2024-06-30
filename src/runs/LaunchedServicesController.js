@@ -126,15 +126,7 @@ export default class LaunchedServicesController {
 
   async #updateTerminateButton(id) {
     try {
-      const response = await fetch('http://10.6.128.106:8080/getupdates/',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ id }),
-        }
-      );
+      const response = await fetch('http://10.6.128.106:8080/getupdates/');
       const idToAccumulatedUpdates = await response.json();
   
       const terminateButton = document.querySelector(`#terminateButton${id}`);
