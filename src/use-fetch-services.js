@@ -32,6 +32,7 @@ async function main() {
     console.error('Error while fetching services. ' + error);
   }
 
+  // Check runs first thing after entering the webpage.
   try {
     const RUNS_URL = `http://10.6.128.106:8080/getruns/`;
     const response2 = await fetch(RUNS_URL);
@@ -41,7 +42,7 @@ async function main() {
     const launchedServicesView = new LaunchedServicesView(allResultView);
     const divLaunchedServices = document.querySelector('#launchedServices');
     divLaunchedServices.innerHTML = launchedServicesView.toString();
-    const launchedServicesController = new LaunchedServicesController(allRun);
+    const launchedServicesController = new LaunchedServicesController();
     await launchedServicesController.getUpdates();
   } catch (error) {
     console.error('Error while fetching runs: ' + error);

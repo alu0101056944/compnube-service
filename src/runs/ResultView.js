@@ -45,7 +45,7 @@ export default class ResultView {
   toString() {
     return `
         <div style="background-color: orange; margin-bottom: 5px;
-              display: flex; flex-direction: row; flex-wrap: wrap;">
+              padding: 7px 0px 7px 0px; display: flex; flex-direction: row; flex-wrap: wrap;">
           <div style="background-color: yellow; width: 50%">
             <b>${this.#config.name}(${this.#id}): </b>
             <span id="executionState${this.#id}">pending start</span>

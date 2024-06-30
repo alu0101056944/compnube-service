@@ -11,22 +11,14 @@
 import ResultView from './ResultView.js';
 import LaunchedServicesView from './LaunchedServicesView.js';
 
-import { config } from '../config.js';
-
 export default class LaunchedServicesController {
-  /** @private */
-  #allResult = undefined;
 
-  /**
-   * 
-   * @param {object} allResult array of ResultView
-   */
-  constructor(allResult) {
-    this.#allResult = allResult;
+  constructor() {
+    this.#setupUpdateButton();
+  }
+
+  #setupUpdateButton() {
     const buttonUpdate = document.querySelector('#updateLaunched');
-
-    
-
     const substituteLaunchedServicesList = async () => {
       try {
         const response2 = await fetch('http://10.6.128.106:8080/getruns/');
@@ -53,6 +45,7 @@ export default class LaunchedServicesController {
     buttonUpdate.addEventListener('click', substituteLaunchedServicesList);
   }
 
+  // Request updates from server and update stuff based on the updates
   async getUpdates() {
     try {
       const response = await fetch('http://10.6.128.106:8080/getupdates/');
@@ -61,69 +54,76 @@ export default class LaunchedServicesController {
         const spanOfExecutionState =
             document.querySelector(`#executionState${id}`);
         spanOfExecutionState.textContent = idToObject[id].executionState;
-
-        if (idToObject[id].executionState === 'Finished execution sucessfully') {
-          const response2 = await fetch('http://10.6.128.106:8080/getavailablefiles/',
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ id }),
-            }
-          );
-          const info = await response2.json();
-          const downloadStatusSpan =
-                document.querySelector(`#hasBeenDownloaded${id}`);
-          if (response2.ok && info.filesAvailable === 'true') {
-            downloadStatusSpan.textContent = 'Can download.';
-            const downloadButton =
-                document.querySelector(`#downloadButton${id}`);
-            downloadButton.disabled = false;
-            downloadButton.addEventListener('click', async () => {
-
-              try {
-                // download the zip file.
-                const response3 = await fetch('http://10.6.128.106:8080/download/', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({ id: id })
-                });
-                const blob = await response3.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = `job_${id}_files.zip`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-
-                // update downloadButton disabled state
-                const response4 = await fetch('http://10.6.128.106:8080/getavailablefiles/', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({ id: id })
-                });
-                const json = await response4.json();
-                if (json.filesAvailable === 'false') {
-                  downloadButton.disabled = true;
-                }
-              } catch (error) {
-                console.error('Download failed:', error);
-              }
-            });
-          } else if (response.ok && info.filesAvailable === 'false') {
-            downloadStatusSpan.textContent = 'Previously sucessfully downloaded.';
-          }
-        }
+        
+        this.#updateDownloadButtonAndSpan(id);
       }
     } catch (error) {
       console.error('Error while fetching runs: ' + error);
     }
   };
+
+  async #updateDownloadButtonAndSpan(id) {
+    const response = await fetch('http://10.6.128.106:8080/getavailablefiles/',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id }),
+      }
+    );
+    const info = await response.json();
+
+    const downloadStatusSpan =
+          document.querySelector(`#hasBeenDownloaded${id}`);
+    if (response.ok && info.filesAvailable === 'true') {
+      downloadStatusSpan.textContent = 'Can download.';
+      const downloadButton =
+          document.querySelector(`#downloadButton${id}`);
+      downloadButton.disabled = false;
+      downloadButton.addEventListener('click', async () => {
+
+        try {
+          // download the zip file.
+          const response3 = await fetch('http://10.6.128.106:8080/download/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id })
+          });
+          const blob = await response3.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = `job_${id}_files.zip`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+
+          // update downloadButton disabled state
+          const response4 = await fetch('http://10.6.128.106:8080/getavailablefiles/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: id })
+          });
+          const json = await response4.json();
+          if (json.filesAvailable === 'false') {
+            downloadButton.disabled = true;
+          }
+        } catch (error) {
+          console.error('Download failed:', error);
+        }
+      });
+    } else if (response.ok && info.filesAvailable === 'false') {
+      downloadStatusSpan.textContent = 'Previously sucessfully downloaded.';
+    }
+  }
+
+  async #updateTerminateButton() {
+    
+  }
 }
