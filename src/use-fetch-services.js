@@ -22,7 +22,7 @@ import { config } from './config.js';
 
 async function main() {
   try {
-    const SERVICES_URL = `${config.serverBaseURL}/services`
+    const SERVICES_URL = `${config.serverBaseURL}services/`
     const response = await fetch(SERVICES_URL);
     const allServiceConfig = await response.json();
     const divServiceList = document.querySelector('#divServiceList');
