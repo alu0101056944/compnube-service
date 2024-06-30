@@ -343,7 +343,7 @@ function execute() {
     const jsonWithRuns = JSON.parse(fileWithRuns);
     const HOST_ADDRESS = jsonWithRuns.launchs[ID].config.hostAddress;
 
-    const response2 = await fetch(`http://${HOST_ADDRESS}:8081/terminaterun`, {
+    const response2 = await fetch(`http://${HOST_ADDRESS}/terminaterun`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
