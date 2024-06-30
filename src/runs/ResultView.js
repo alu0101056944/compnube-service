@@ -44,15 +44,21 @@ export default class ResultView {
 
   toString() {
     return `
-        <div style="background-color: orange; padding: 9px 0px 9px 6px; margin-bottom: 5px;
-            display: flex; flex-direction: row;">
-          <div style="width: 75%;">
+        <div style="background-color: orange; margin-bottom: 5px;
+              display: flex; flex-direction: row; flex-wrap: wrap;">
+          <div style="background-color: yellow; width: 50%">
             <b>${this.#config.name}(${this.#id}): </b>
             <span id="executionState${this.#id}">pending start</span>
           </div>
-          <div style="width: 25%";>
+          <div id='terminateProcessDiv${this.#id}' style="width: 20%; background-color: red;">
+            <button id='terminateButton${this.#id}' disabled="true">
+              Stop process.
+            </button>
+          </div>
+          <div style="background-color: blue; width: 30%">
             <button id="downloadButton${this.#id}" disabled="true">
-                Download output files</button>
+                Download output files
+            </button>
             <span id="hasBeenDownloaded${this.#id}"></span>
           </div>
         </div>

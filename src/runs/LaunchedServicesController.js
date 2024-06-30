@@ -73,7 +73,10 @@ export default class LaunchedServicesController {
             }
           );
           const info = await response2.json();
+          const downloadStatusSpan =
+                document.querySelector(`#hasBeenDownloaded${id}`);
           if (response2.ok && info.filesAvailable === 'true') {
+            downloadStatusSpan.textContent = 'Can download.';
             const downloadButton =
                 document.querySelector(`#downloadButton${id}`);
             downloadButton.disabled = false;
@@ -114,6 +117,8 @@ export default class LaunchedServicesController {
                 console.error('Download failed:', error);
               }
             });
+          } else if (response.ok && info.filesAvailable === 'false') {
+            downloadStatusSpan.textContent = 'Previously sucessfully downloaded.';
           }
         }
       }
