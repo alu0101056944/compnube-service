@@ -39,12 +39,12 @@ export default class ServiceConfiguratorView {
     return `
       <div style=display: flex; flex-direction: column; background-color: grey;
           padding-bottom: 10px;>
-        <h1>Service launch configuration for <span style="color:orange;">${this.#config.name}</span>:</h1>
+        <h1>Service launch configuration for <span style="color:IndianRed;">${this.#config.name}</span>:</h1>
         ${allCLIParamInputs.length > 0 ? '<h2>CLI Arguments:</h2>' : ''}
         ${allCLIParamInputs.join('<br>')}
         ${allCLIParamInputs.length > 0 ? '<br>' : ''}
-        <h2>Binary Arguments:</h2>
-        ${allParamInputs.join('<br>')}
+        ${this.#config.params.length > 0 ? '<h2>Binary Arguments:</h2>' : ''}
+        ${this.#config.params.length > 0 ? allParamInputs.join('<br>') : ''}
         <br>
         ${this.#config.acceptInputFiles === 'true' ? INPUT_FILES_SELECTOR : ''}
         ${this.#config.acceptInputFiles === 'true' ? '<br>' : ''}

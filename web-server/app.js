@@ -233,9 +233,10 @@ function execute() {
     }
 
     // associate origin address to its id runs for reducing the fetch amount
-    hostAddressToRunId = {}
+    const hostAddressToRunId = {}
     for (const potentialyDeadId of potentiallyDeadIds) {
-      HOST_ADDRESS_OF_ID = jsonWithRuns.launchs[potentialyDeadId].hostAddress;
+      const HOST_ADDRESS_OF_ID =
+          jsonWithRuns.launchs[potentialyDeadId].config.hostAddress;
       hostAddressToRunId[HOST_ADDRESS_OF_ID] ??= [];
       hostAddressToRunId[HOST_ADDRESS_OF_ID].push(potentialyDeadId);
     }
@@ -250,7 +251,7 @@ function execute() {
         body: JSON.stringify({ ids: hostAddressToRunId[hostAddress] })
       });
       const json = await response2.json();
-      idsNotAliveOnTheHost = json.allDeadId;
+      const idsNotAliveOnTheHost = json.allDeadId;
       idsThatAreNotAlive =
           idsThatAreNotAlive.concat(idsNotAliveOnTheHost);
     }

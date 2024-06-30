@@ -1,3 +1,54 @@
 {
-  "launchs": {}
+  "launchs": {
+    "2": {
+      "args": {
+        "Image filename": "images.jpg"
+      },
+      "cliArgs": {
+        "nodeAmount": "3"
+      },
+      "config": {
+        "name": "MPICH cpp oil image algorithm",
+        "description": "Given an image, process it to get an oily version. This uses the command mpirun -np ...",
+        "params": [
+          {
+            "name": "Image filename",
+            "description": "The filename of the input image file.",
+            "type": "string"
+          }
+        ],
+        "cli": "mpirun -np <nodeAmount> --hosts node1,node2,node3,node4,node5,node6,node7,node8 {binary}",
+        "cliParams": {
+          "nodeAmount": "foo"
+        },
+        "acceptInputFiles": "true",
+        "hostAddress": "10.6.128.162:8081",
+        "binaryName": "main_mpi",
+        "originAddress": "10.6.128.106:8080"
+      },
+      "id": 2
+    },
+    "3": {
+      "args": {},
+      "cliArgs": {
+        "filename": "fafa",
+        "fileContent": "gaga"
+      },
+      "config": {
+        "name": "Create a text file",
+        "description": "Create a text file whose content is passed as argument.",
+        "params": [],
+        "cli": "{binary} <filename> <fileContent>",
+        "cliParams": {
+          "filename": "foo",
+          "fileContent": "foo"
+        },
+        "acceptInputFiles": "false",
+        "hostAddress": "10.6.128.162:8081",
+        "binaryName": "create_text_file.bash",
+        "originAddress": "10.6.128.106:8080"
+      },
+      "id": 3
+    }
+  }
 }
