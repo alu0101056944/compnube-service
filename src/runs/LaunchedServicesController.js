@@ -55,7 +55,7 @@ export default class LaunchedServicesController {
             document.querySelector(`#executionState${id}`);
         spanOfExecutionState.textContent = idToObject[id].executionState;
 
-        this.#updateDownloadButtonAndSpan(update, id);
+        this.#updateDownloadButtonAndSpan(idToObject[id], id);
         this.#updateTerminateButton(id);
       }
     } catch (error) {
@@ -64,7 +64,7 @@ export default class LaunchedServicesController {
   };
 
   async #updateDownloadButtonAndSpan(update, id) {
-    if (idToObject[id].executionState === 'Finished execution sucessfully') {
+    if (update.executionState === 'Finished execution sucessfully') {
       const response = await fetch('http://10.6.128.106:8080/getavailablefiles/',
         {
           method: 'POST',
