@@ -22,8 +22,8 @@ import { config } from './config.js';
 
 async function main() {
   try {
-    const response = await fetch((config.serverBaseURL ?? 'http://localhost:8080/') +
-    config.servicesPath ?? 'services/');
+    const SERVICES_URL = `${config.serverBaseURL}/services`
+    const response = await fetch(SERVICES_URL);
     const allServiceConfig = await response.json();
     const divServiceList = document.querySelector('#divServiceList');
     for (const config of allServiceConfig) {
@@ -36,7 +36,8 @@ async function main() {
   }
 
   try {
-    const response2 = await fetch(config.serverBaseURL + 'getruns/');
+    const RUNS_URL = `${config.serverBaseURL}getruns/`;
+    const response2 = await fetch(RUNS_URL);
     const allRun = await response2.json();
     const allResultView = (Object.values(allRun.launchs))
         .map(run => new ResultView(run.config, run.id));
