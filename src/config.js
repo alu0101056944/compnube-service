@@ -7,6 +7,5 @@ export const config = {
   "servicesPath": "services/",
   "serverBaseURL": "http:/10.6.128.106:8080/",
   "requestUpdatesPath": "jobUpdates/",
-  "fileOutputsPath": "jobDownloads/",
   "fileInputsPath": "jobUploads/",
 }

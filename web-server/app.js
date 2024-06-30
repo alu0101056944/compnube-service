@@ -86,7 +86,7 @@ function execute() {
     const WRITE_PATH = config.requestUpdatesPath + request.body.id + '.json';
     console.log('this is SPARTA!');
     console.log(WRITE_PATH);
-    const firstUpdate = { executionState: 'Execution pending' };
+    const firstUpdate = { executionState: 'Job created, execution pending' };
     await writeFile(WRITE_PATH, JSON.stringify({ updates: [firstUpdate] }));
 
     // create file inputs folder for the request
@@ -202,7 +202,9 @@ function execute() {
 
   application.get('/getupdates', async (request, response) => {
     console.log('/getupdates called');
+
     const executionUpdates = {};
+    const potentiallyDeadIds = [];
 
     const fileWithRuns =
         await readFile('src/services/requestLaunchs.json', 'utf-8');
@@ -223,6 +225,45 @@ function execute() {
               update.hasDownloadedOutputFiles;
         }
       }
+
+      if (executionUpdates[run.id].executionState === 'Job created, execution pending' ||
+          executionUpdates[run.id].executionState === 'Executing') {
+        potentiallyDeadIds.push(run.id) 
+      }
+    }
+
+    // associate origin address to its id runs for reducing the fetch amount
+    hostAddressToRunId = {}
+    for (const potentialyDeadId of potentiallyDeadIds) {
+      HOST_ADDRESS_OF_ID = jsonWithRuns.launchs[potentialyDeadId].hostAddress;
+      hostAddressToRunId[HOST_ADDRESS_OF_ID] ??= [];
+      hostAddressToRunId[HOST_ADDRESS_OF_ID].push(potentialyDeadId);
+    }
+
+    let idsThatAreNotAlive = [];
+    for (const hostAddress of Object.getOwnPropertyNames(hostAddressToRunId)) {
+      const response2 = await fetch(`http://${hostAddress}/alivestatecheck`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ids: hostAddressToRunId[hostAddress] })
+      });
+      const json = await response2.json();
+      idsNotAliveOnTheHost = json.allDeadId;
+      idsThatAreNotAlive =
+          idsThatAreNotAlive.concat(idsNotAliveOnTheHost);
+    }
+
+    for (const idNotAlive of idsThatAreNotAlive) {
+
+      // add new update to its updates file
+      const UPDATE_FILE = await readFile(`jobUpdates/${idNotAlive}.json`);
+      const updateFile = JSON.parse(UPDATE_FILE);
+      updateFile.updates.push({ executionState: 'execution failed' });
+
+      // change the latest update found earlier
+      executionUpdates[idNotAlive].executionState = 'execution failed';
     }
 
     if (Object.getOwnPropertyNames(executionUpdates).length > 0) {
@@ -238,7 +279,7 @@ function execute() {
     console.log('/pushupdate called');
     const update = request.body;
 
-    console.log('Received /pushudate for ' + update.id);
+    console.log('Received /pushupdate for ' + update.id);
 
     const UPDATE_PATH = `${config.requestUpdatesPath}/${update.id}.json`;
     const updateFile = await readFile(UPDATE_PATH, 'utf8');
@@ -348,7 +389,7 @@ function execute() {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ ID })
+      body: JSON.stringify({ id: ID })
     });
   });
 }
