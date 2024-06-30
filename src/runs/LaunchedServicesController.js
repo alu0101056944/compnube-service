@@ -55,7 +55,7 @@ export default class LaunchedServicesController {
             document.querySelector(`#executionState${id}`);
         spanOfExecutionState.textContent = idToObject[id].executionState;
 
-        this.#updateDownloadButtonAndSpan(id);
+        this.#updateDownloadButtonAndSpan(update, id);
         this.#updateTerminateButton(id);
       }
     } catch (error) {
@@ -63,64 +63,66 @@ export default class LaunchedServicesController {
     }
   };
 
-  async #updateDownloadButtonAndSpan(id) {
-    const response = await fetch('http://10.6.128.106:8080/getavailablefiles/',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ id }),
-      }
-    );
-    const info = await response.json();
-
-    const downloadStatusSpan =
-          document.querySelector(`#hasBeenDownloaded${id}`);
-    if (response.ok && info.filesAvailable === 'true') {
-      downloadStatusSpan.textContent = 'Can download.';
-      const downloadButton =
-          document.querySelector(`#downloadButton${id}`);
-      downloadButton.disabled = false;
-      downloadButton.addEventListener('click', async () => {
-
-        try {
-          // download the zip file.
-          const response3 = await fetch('http://10.6.128.106:8080/download/', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ id })
-          });
-          const blob = await response3.blob();
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.style.display = 'none';
-          a.href = url;
-          a.download = `job_${id}_files.zip`;
-          document.body.appendChild(a);
-          a.click();
-          window.URL.revokeObjectURL(url);
-
-          // update downloadButton disabled state
-          const response4 = await fetch('http://10.6.128.106:8080/getavailablefiles/', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ id: id })
-          });
-          const json = await response4.json();
-          if (json.filesAvailable === 'false') {
-            downloadButton.disabled = true;
-          }
-        } catch (error) {
-          console.error('Download failed:', error);
+  async #updateDownloadButtonAndSpan(update, id) {
+    if (idToObject[id].executionState === 'Finished execution sucessfully') {
+      const response = await fetch('http://10.6.128.106:8080/getavailablefiles/',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ id }),
         }
-      });
-    } else if (response.ok && info.filesAvailable === 'false') {
-      downloadStatusSpan.textContent = 'Previously sucessfully downloaded.';
+      );
+      const info = await response.json();
+
+      const downloadStatusSpan =
+            document.querySelector(`#hasBeenDownloaded${id}`);
+      if (response.ok && info.filesAvailable === 'true') {
+        downloadStatusSpan.textContent = 'Can download.';
+        const downloadButton =
+            document.querySelector(`#downloadButton${id}`);
+        downloadButton.disabled = false;
+        downloadButton.addEventListener('click', async () => {
+
+          try {
+            // download the zip file.
+            const response3 = await fetch('http://10.6.128.106:8080/download/', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ id })
+            });
+            const blob = await response3.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `job_${id}_files.zip`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+
+            // update downloadButton disabled state
+            const response4 = await fetch('http://10.6.128.106:8080/getavailablefiles/', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ id: id })
+            });
+            const json = await response4.json();
+            if (json.filesAvailable === 'false') {
+              downloadButton.disabled = true;
+            }
+          } catch (error) {
+            console.error('Download failed:', error);
+          }
+        });
+      } else if (response.ok && info.filesAvailable === 'false') {
+        downloadStatusSpan.textContent = 'Previously sucessfully downloaded.';
+      }
     }
   }
 
