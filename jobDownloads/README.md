@@ -1,0 +1,1 @@
+This directory contains the folders where the output files wouldd be stoerd. Current implementation doesn't use jobDownloads/, but directly downloads from the execution server of the host to the client.

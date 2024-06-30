@@ -84,6 +84,8 @@ function execute() {
 
     // create updates file for the request
     const WRITE_PATH = config.requestUpdatesPath + request.body.id + '.json';
+    console.log('this is SPARTA!');
+    console.log(WRITE_PATH);
     const firstUpdate = { executionState: 'Execution pending' };
     await writeFile(WRITE_PATH, JSON.stringify({ updates: [firstUpdate] }));
 

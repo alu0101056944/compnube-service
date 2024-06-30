@@ -1,3 +1,10 @@
+jobUpdates/*
+!jobUpdates/README.md
+jobDownloads/*
+!jobDownloads/README.md
+jobUploads/*
+!jobUploads/README.md
+
 # Logs
 logs
 *.log

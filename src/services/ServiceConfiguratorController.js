@@ -9,12 +9,7 @@
 'use strict';
 
 import ServiceConfiguratorView from "./ServiceConfiguratorView.js";
-
 import ServiceArgumentsValidator from './ServiceArgumentsValidator.js'
-import LaunchedServicesView from '../runs/LaunchedServicesView.js';
-import ResultView from '../runs/ResultView.js';
-
-import { config } from '../config.js';
 
 export default class ServiceConfiguratorController {
   /** @private */
@@ -94,7 +89,7 @@ export default class ServiceConfiguratorController {
         jsonToSend.config = this.#activeConfig;
 
         // get new service request id
-        const request = await fetch(config.serverBaseURL + 'getnewservicerequestid/');
+        const request = await fetch('http://10.6.128.106:8080/getnewservicerequestid/');
         const json = await request.json();
         jsonToSend.id = json.newId;
 
@@ -111,7 +106,7 @@ export default class ServiceConfiguratorController {
 
         const body = JSON.stringify(jsonToSend, null, 2)
         try {
-          await fetch(config.serverBaseURL + 'execute/', {
+          await fetch('http://10.6.128.106:8080/execute/', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -144,7 +139,7 @@ export default class ServiceConfiguratorController {
     }
 
     try {
-      const response = await fetch(config.serverBaseURL + 'pushinputfiles/', {
+      const response = await fetch('http://10.6.128.106:8080/pushinputfiles/', {
         method: 'POST',
         headers: {
           'X-Service-ID': id

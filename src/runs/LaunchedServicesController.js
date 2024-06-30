@@ -29,7 +29,7 @@ export default class LaunchedServicesController {
 
     const substituteLaunchedServicesList = async () => {
       try {
-        const response2 = await fetch(config.serverBaseURL + 'getruns/');
+        const response2 = await fetch('http://10.6.128.106:8080/getruns/');
         const allRun = await response2.json();
         const allResultView = Object.values(allRun.launchs)
             .map(run => new ResultView(run.config, run.id));
@@ -55,7 +55,7 @@ export default class LaunchedServicesController {
 
   async getUpdates() {
     try {
-      const response = await fetch(config.serverBaseURL + 'getupdates/');
+      const response = await fetch('http://10.6.128.106:8080/getupdates/');
       const idToObject = await response.json();
       for (const id of Object.getOwnPropertyNames(idToObject)) {
         const spanOfExecutionState =
@@ -63,8 +63,7 @@ export default class LaunchedServicesController {
         spanOfExecutionState.textContent = idToObject[id].executionState;
 
         if (idToObject[id].executionState === 'Finished execution sucessfully') {
-          const response2 = await fetch(config.serverBaseURL +
-              'getavailablefiles/',
+          const response2 = await fetch('http://10.6.128.106:8080/getavailablefiles/',
             {
               method: 'POST',
               headers: {
@@ -82,7 +81,7 @@ export default class LaunchedServicesController {
 
               try {
                 // download the zip file.
-                const response3 = await fetch(config.serverBaseURL + 'download/', {
+                const response3 = await fetch('http://10.6.128.106:8080/download/', {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json'
@@ -100,8 +99,7 @@ export default class LaunchedServicesController {
                 window.URL.revokeObjectURL(url);
 
                 // update downloadButton disabled state
-                const response4 = await fetch(config.serverBaseURL +
-                    'getavailablefiles/', {
+                const response4 = await fetch('http://10.6.128.106:8080/getavailablefiles/', {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json'

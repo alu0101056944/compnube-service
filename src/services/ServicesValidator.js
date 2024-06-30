@@ -45,7 +45,6 @@ export default class ServicesValidator {
       if (!HAS_ALL_FIELDS) {
         return false;
       }
-
       const PARAM_ARRAY_IS_CORRECT = Array.isArray(configObject.params) &&
           configObject.params.every((paramConfig) => {
             return typeof paramConfig === 'object' && paramConfig.name &&
@@ -54,7 +53,6 @@ export default class ServicesValidator {
       if (!PARAM_ARRAY_IS_CORRECT) {
         return false;
       }
-
       const ALL_CLI_PARAM = [...(configObject.cli.matchAll(/<.+?>/g))]
           .map(match => match[0].replace(/</g, '').replace(/>/g, ''));
       const INCLUDED_CLI_PARAMS =
@@ -64,7 +62,6 @@ export default class ServicesValidator {
       if (!ALL_CLI_PARAMS_PRESENT) {
         return false;
       }
-
       return true;
     });
 

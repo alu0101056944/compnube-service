@@ -1,20 +1,12 @@
 {
-  "name": "Create a text file.",
+  "name": "Create a text file",
   "description": "Create a text file whose content is passed as argument.",
-  "params": [
-    {
-      "name": "filename",
-      "description": "The name of the file to be created",
-      "type": "string"
-    },
-    {
-      "name": "fileContent",
-      "description": "The content of the file",
-      "type": "string"
-    }
-  ],
+  "params": [],
   "cli": "{binary} <filename> <fileContent>",
-  "cliParams": {},
+  "cliParams": {
+    "filename": "foo",
+    "fileContent": "foo"
+  },
   "acceptInputFiles": "false",
   "hostAddress": "10.6.128.162:8081",
   "binaryName": "create_text_file.bash",

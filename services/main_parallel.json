@@ -7,7 +7,7 @@
     "inputImagePath": "foo"
   },
   "acceptInputFiles": "true",
-  "hostAddress": "10.6.129.66:8081",
+  "hostAddress": "10.6.130.168:8081",
   "binaryName": "main_parallel",
   "originAddress": "10.6.128.106:8080"
 }

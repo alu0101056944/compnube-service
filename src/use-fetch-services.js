@@ -18,12 +18,9 @@ import LaunchedServicesView from './runs/LaunchedServicesView.js';
 import LaunchedServicesController from './runs/LaunchedServicesController.js';
 import ResultView from './runs/ResultView.js';
 
-import { config } from './config.js';
-
 async function main() {
   try {
-    const SERVICES_URL = `${config.serverBaseURL}services/`
-    const response = await fetch(SERVICES_URL);
+    const response = await fetch('http://10.6.128.106:8080/services');
     const allServiceConfig = await response.json();
     const divServiceList = document.querySelector('#divServiceList');
     for (const config of allServiceConfig) {
@@ -36,7 +33,7 @@ async function main() {
   }
 
   try {
-    const RUNS_URL = `${config.serverBaseURL}getruns/`;
+    const RUNS_URL = `http://10.6.128.106:8080/getruns/`;
     const response2 = await fetch(RUNS_URL);
     const allRun = await response2.json();
     const allResultView = (Object.values(allRun.launchs))
