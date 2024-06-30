@@ -89,11 +89,6 @@ function execute() {
     const firstUpdate = { executionState: 'Execution pending' };
     await writeFile(WRITE_PATH, JSON.stringify({ updates: [firstUpdate] }));
 
-    // create downloads folder for the request
-    const WRITE_PATH_DOWNLOADS =
-        config.fileOutputsPath + request.body.id;
-    await fs.mkdir(WRITE_PATH_DOWNLOADS, { recursive: true });
-
     // create file inputs folder for the request
     const WRITE_PATH_FILE_INPUTS =
         config.fileInputsPath + request.body.id;
@@ -338,6 +333,24 @@ function execute() {
       response.send(`${request.files.length} file(s) uploaded successfully!`);
   });
 
+  application.post('/terminaterun', async (request, response) => {
+    console.log('/terminaterun called');
+
+    const ID = request.body.id;
+
+    const fileWithRuns =
+        await readFile('src/services/requestLaunchs.json', 'utf-8');
+    const jsonWithRuns = JSON.parse(fileWithRuns);
+    const HOST_ADDRESS = jsonWithRuns.launchs[ID].config.hostAddress;
+
+    const response = await fetch(`http://${HOST_ADDRESS}:8081/terminaterun`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ ID })
+    });
+  });
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

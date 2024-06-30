@@ -54,8 +54,9 @@ export default class LaunchedServicesController {
         const spanOfExecutionState =
             document.querySelector(`#executionState${id}`);
         spanOfExecutionState.textContent = idToObject[id].executionState;
-        
+
         this.#updateDownloadButtonAndSpan(id);
+        this.#updateTerminateButton(id);
       }
     } catch (error) {
       console.error('Error while fetching runs: ' + error);
@@ -123,7 +124,45 @@ export default class LaunchedServicesController {
     }
   }
 
-  async #updateTerminateButton() {
-    
+  async #updateTerminateButton(id) {
+    try {
+      const response = await fetch('http://10.6.128.106:8080/getupdates/',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ id }),
+        }
+      );
+      const idToAccumulatedUpdates = await response.json();
+  
+      const terminateButton = document.querySelector(`#terminateButton${id}`);
+      if (idToAccumulatedUpdates[id].executionState === 'Finished execution sucessfully' ||
+        idToAccumulatedUpdates[id].executionState === 'execution failed' ||
+        idToAccumulatedUpdates[id].executionState === 'Terminated by user') {
+        terminateButton.disabled = true;
+      } else if (idToAccumulatedUpdates[id].executionState === 'Executing') {
+        terminateButton.disabled = false;
+        const sendTerminateRequest = async () => {
+          try {
+            const response2 = await fetch('http://10.6.128.106:8080/terminaterun/', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ id })
+            });
+          } catch (error) {
+            console.error('Attempt at sending a /terminaterun request from ' +
+              id + '\'s terminate button failed: ', error);
+          }
+        }
+        terminateButton.addEventListener('click', sendTerminateRequest);
+      }
+    } catch (error) {
+      console.error('Error while getting updates for updating the terminate ' +
+          ' button of the run ' + id + '. error' + error);
+    }
   }
 }
