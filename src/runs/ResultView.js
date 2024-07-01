@@ -48,7 +48,7 @@ export default class ResultView {
               padding: 7px 0px 7px 0px; display: flex; flex-direction: row; flex-wrap: wrap;">
           <div style="background-color: yellow; width: 50%">
             <b>${this.#config.name}(${this.#id}): </b>
-            <span id="executionState${this.#id}">pending start</span>
+            <span id="executionState${this.#id}">\<no info\></span>
           </div>
           <div id='terminateProcessDiv${this.#id}' style="width: 20%; background-color: red;">
             <button id='terminateButton${this.#id}' disabled="true">

@@ -19,35 +19,28 @@ export default class LaunchedServicesController {
 
   #setupUpdateButton() {
     const buttonUpdate = document.querySelector('#updateLaunched');
-    const substituteLaunchedServicesList = async () => {
-      try {
-        const response2 = await fetch('http://10.6.128.106:8080/getruns/');
-        const allRun = await response2.json();
-        const allResultView = Object.values(allRun.launchs)
-            .map(run => new ResultView(run.config, run.id));
-        const launchedServicesView = new LaunchedServicesView(allResultView);
-        const divLaunchedServices = document.querySelector('#launchedServices');
-        divLaunchedServices.innerHTML = launchedServicesView.toString();
-        const buttonUpdate = document.querySelector('#updateLaunched');
-        buttonUpdate.addEventListener('click', substituteLaunchedServicesList);
-
-        buttonUpdate.disabled = true;
-        setTimeout(() => {
-          buttonUpdate.disabled = false
-        }, 2000);
-          
-        await this.getUpdates();
-      } catch (error) {
-        console.error('Error while fetching runs: ' + error);
-      }
-    };
-
-    buttonUpdate.addEventListener('click', substituteLaunchedServicesList);
+    buttonUpdate.addEventListener('click', async () => await this.getUpdates());
   }
 
   // Request updates from server and update stuff based on the updates
   async getUpdates() {
     try {
+      const response2 = await fetch('http://10.6.128.106:8080/getruns/');
+      const allRun = await response2.json();
+      const allResultView = Object.values(allRun.launchs)
+          .map(run => new ResultView(run.config, run.id));
+      const launchedServicesView = new LaunchedServicesView(allResultView);
+      const divLaunchedServices = document.querySelector('#launchedServices');
+      divLaunchedServices.innerHTML = launchedServicesView.toString();
+
+      // must be called after innerHTML substitution
+      const buttonUpdate = document.querySelector('#updateLaunched');
+      buttonUpdate.addEventListener('click', async () => await this.getUpdates());
+      buttonUpdate.disabled = true;
+      setTimeout(() => {
+        buttonUpdate.disabled = false
+      }, 2000);
+
       const response = await fetch('http://10.6.128.106:8080/getupdates/');
       const idToObject = await response.json();
       for (const id of Object.getOwnPropertyNames(idToObject)) {
@@ -55,13 +48,14 @@ export default class LaunchedServicesController {
             document.querySelector(`#executionState${id}`);
         spanOfExecutionState.textContent = idToObject[id].executionState;
 
-        this.#updateDownloadButtonAndSpan(idToObject[id], id);
-        this.#updateTerminateButton(id);
+        await this.#updateDownloadButtonAndSpan(idToObject[id], id);
+        await this.#updateTerminateButton(id);
+        await this.#updateTerminalContent(idToObject[id], id);
       }
 
-      this.#setupTerminalButtons();
+      await this.#setupTerminalButtons(allRun);
     } catch (error) {
-      console.error('Error while fetching runs: ' + error);
+      console.error('Error while updating: ' + error);
     }
   };
 
@@ -164,11 +158,8 @@ export default class LaunchedServicesController {
     }
   }
 
-  async #setupTerminalButtons() {    
+  async #setupTerminalButtons(allRun) {
     try {
-      const response2 = await fetch('http://10.6.128.106:8080/getruns/');
-      const allRun = await response2.json();
-
       const allTerminalDOMInfo = Object.values(allRun.launchs)
           .map(run => ({
             buttonSelector: `#showTerminalButton${run.id}`,
@@ -198,6 +189,14 @@ export default class LaunchedServicesController {
       console.error('Error while fetching runs to setup terminal buttons: ' +
           error);
     }
+  }
 
+  async #updateTerminalContent(update, id) {
+    const terminalContent = document.querySelector(`#terminalContent${id}`);
+    if (update.stdout) {
+      terminalContent.textContent = update.stdout;
+    } else {
+      terminalContent.textContent = 'No console output received.';
+    }
   }
 }
