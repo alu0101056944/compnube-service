@@ -35,7 +35,7 @@ export default class LaunchedServicesController {
         setTimeout(() => {
           buttonUpdate.disabled = false
         }, 2000);
-
+          
         await this.getUpdates();
       } catch (error) {
         console.error('Error while fetching runs: ' + error);
@@ -58,6 +58,8 @@ export default class LaunchedServicesController {
         this.#updateDownloadButtonAndSpan(idToObject[id], id);
         this.#updateTerminateButton(id);
       }
+
+      this.#setupTerminalButtons();
     } catch (error) {
       console.error('Error while fetching runs: ' + error);
     }
@@ -103,6 +105,8 @@ export default class LaunchedServicesController {
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
+
+            downloadStatusSpan.textContent = 'Download started.';
 
             // update downloadButton disabled state
             const response4 = await fetch('http://10.6.128.106:8080/getavailablefiles/', {
@@ -158,5 +162,47 @@ export default class LaunchedServicesController {
       console.error('Error while getting updates for updating the terminate ' +
           ' button of the run ' + id + '. error' + error);
     }
+  }
+
+  async #setupTerminalButtons() {    
+    try {
+      const response2 = await fetch('http://10.6.128.106:8080/getruns/');
+      const allRun = await response2.json();
+
+      const allTerminalDOMInfo = Object.values(allRun.launchs)
+          .map(run => ({
+            buttonSelector: `#showTerminalButton${run.id}`,
+            terminalSelector: `#terminal${run.id}`,
+            terminalContentSelector: `#terminalContent${run.id}`,
+          }));
+  
+      console.log(allTerminalDOMInfo);
+      allTerminalDOMInfo.forEach(terminalDOMInfo => {
+        console.log('Setup terminal button ');
+        const showTerminalButton =
+            document.querySelector(terminalDOMInfo.buttonSelector);
+        const toggleTerminalRendering = () => {
+          console.log('toggling');
+          const terminal =
+            document.querySelector(terminalDOMInfo.terminalSelector);
+          if (terminal.style.display === 'none') {
+            console.log('showing');
+            terminal.style.display = 'block';
+            showTerminalButton.textContent = 'Hide terminal.';
+          } else  {
+            console.log('hiding');
+            terminal.style.display = 'none';
+            showTerminalButton.textContent = 'Show terminal.';
+          }
+        }
+  
+        showTerminalButton.removeEventListener('click', toggleTerminalRendering);
+        showTerminalButton.addEventListener('click', toggleTerminalRendering);
+      });
+    } catch (error) {
+      console.error('Error while fetching runs to setup terminal buttons: ' +
+          error);
+    }
+
   }
 }

@@ -54,12 +54,19 @@ export default class ResultView {
             <button id='terminateButton${this.#id}' disabled="true">
               Stop process.
             </button>
+            <button id='showTerminalButton${this.#id}'>
+              Show terminal.
+            </button>
           </div>
           <div style="background-color: blue; width: 30%">
             <button id="downloadButton${this.#id}" disabled="true">
                 Download output files
             </button>
             <span id="hasBeenDownloaded${this.#id}"></span>
+          </div>
+          <div id='terminal${this.#id}' style='display: none; background-color: black;
+              width: 100%; height: 300px;'>
+            <span id='terminalContent${this.#id}' style='color: white;'></span>
           </div>
         </div>
       `;

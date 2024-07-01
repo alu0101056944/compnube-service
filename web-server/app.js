@@ -55,7 +55,7 @@ async function execute() {
     await access('src/services/requestLaunchs.json', fs.constants.F_OK);
   } catch (error) {
     if (error.code === 'ENOENT') {
-      const TEMPLATE = JSON.stringify({ launchs: [] }, null, 2);
+      const TEMPLATE = JSON.stringify({ launchs: {} }, null, 2);
       await writeFile('src/services/requestLaunchs.json', TEMPLATE);
     } else {
       console.error('Could not check whether requestLaunchs.json exists:' + error);
@@ -107,7 +107,6 @@ async function execute() {
 
     // create updates file for the request
     const WRITE_PATH = config.requestUpdatesPath + request.body.id + '.json';
-    console.log('this is SPARTA!');
     console.log(WRITE_PATH);
     const firstUpdate = { executionState: 'Job created, execution pending' };
     await writeFile(WRITE_PATH, JSON.stringify({ updates: [firstUpdate] }));
@@ -166,13 +165,14 @@ async function execute() {
     } catch (error) {
       console.error('Execution failure: could not connect with the host' +
         ' or could not upload the input files. Service run: ' +
-        request.body.config.name + '(' + request.body.id + ') ', error);
+        request.body.config.name + '(' + request.body.id + ') ' +
+        ' . Marking it\'s ids as execution failed. Error: ', error);
       const updatesFile =
           await readFile(config.requestUpdatesPath + request.body.id + '.json',
               'utf8');
       const updatesFileJSON = JSON.parse(updatesFile);
       updatesFileJSON.updates.push({
-        executionState: 'Failure: failed to connect to service host.',
+        executionState: 'execution failed',
       });
       await writeFile(config.requestUpdatesPath + request.body.id + '.json',
           JSON.stringify(updatesFileJSON, null, 2));
@@ -180,8 +180,6 @@ async function execute() {
       response.send('Failed to send the service run to the Host. ' +
           'Unable to connect.');
     }
-
-    
   });
 
   application.get('/services', async (request, response) => {
@@ -266,17 +264,24 @@ async function execute() {
 
     let idsThatAreNotAlive = [];
     for (const hostAddress of Object.getOwnPropertyNames(hostAddressToRunId)) {
-      const response2 = await fetch(`http://${hostAddress}/alivestatecheck`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ ids: hostAddressToRunId[hostAddress] })
-      });
-      const json = await response2.json();
-      const idsNotAliveOnTheHost = json.allDeadId;
-      idsThatAreNotAlive =
-          idsThatAreNotAlive.concat(idsNotAliveOnTheHost);
+      try {
+        const response2 = await fetch(`http://${hostAddress}/alivestatecheck`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ ids: hostAddressToRunId[hostAddress] })
+        });
+        const json = await response2.json();
+        const idsNotAliveOnTheHost = json.allDeadId;
+        idsThatAreNotAlive =
+            idsThatAreNotAlive.concat(idsNotAliveOnTheHost);
+      } catch (error) {
+        console.error('Could not connect to host ' + hostAddress + ' to check ' +
+          ' id aliveness. Assumming it\'s ids are dead.');
+          idsThatAreNotAlive =
+            idsThatAreNotAlive.concat(hostAddressToRunId[hostAddress]);
+      }
     }
 
     for (const idNotAlive of idsThatAreNotAlive) {

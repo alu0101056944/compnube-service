@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "serve": "node web-server/app.js"
+    "serve": "node web-server/app.js",
+    "cleanup": "rm -rf jobUploads/* && echo 'This is the folder that contains the working directories for the executions.' > jobUploads/README.md && rm -rf jobUpdates/*.json && rm src/services/requestAmount.json && rm src/services/requestLaunchs.json"
   },
   "type": "module",
   "keywords": [],
