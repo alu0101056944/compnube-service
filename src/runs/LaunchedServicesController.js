@@ -176,21 +176,16 @@ export default class LaunchedServicesController {
             terminalContentSelector: `#terminalContent${run.id}`,
           }));
   
-      console.log(allTerminalDOMInfo);
       allTerminalDOMInfo.forEach(terminalDOMInfo => {
-        console.log('Setup terminal button ');
         const showTerminalButton =
             document.querySelector(terminalDOMInfo.buttonSelector);
         const toggleTerminalRendering = () => {
-          console.log('toggling');
           const terminal =
             document.querySelector(terminalDOMInfo.terminalSelector);
           if (terminal.style.display === 'none') {
-            console.log('showing');
             terminal.style.display = 'block';
             showTerminalButton.textContent = 'Hide terminal.';
           } else  {
-            console.log('hiding');
             terminal.style.display = 'none';
             showTerminalButton.textContent = 'Show terminal.';
           }
