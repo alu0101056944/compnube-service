@@ -35,8 +35,7 @@ import os
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, regexp_extract_all, lit, split, explode, \
-                                  element_at, regexp_extract, abs, broadcast, \
-                                  current_timestamp, window
+                                  element_at, regexp_extract, abs, min, filter
 from pyspark.sql.types import StringType, StructType, StructField, BinaryType, \
                               TimestampType, LongType, FloatType
 
@@ -150,14 +149,8 @@ radiographyFile = spark \
 
 withFileInformationProcessed = radiographyFile.select(
   element_at(split('path', r'[\\/]'), -1).alias('filename'),
-  col('content').cast(StringType()).alias('content'),
-  current_timestamp().alias('event_time')
-).withWatermark('event_time', '25 minute')
-
-# Watermark sets the margin time that spark waits for late arriving data for adding it
-# to its supposed place instead of having to discard it. Calculated
-# from the dataframe's max timestamp. Each transformation passed down config so it will
-# keep making the calculation each step of the process.
+  col('content').cast(StringType()).alias('content')
+)
 
 boneRegExp = r"(?m)(((A|AN)\s+)?\w+\s+BONE\s+OF\s+MEASUREMENTS\s+(\w+\s+=\s+(\d*\.?\d+)\s+)+)"
 genderRegExp = r"(?m)STARTING\s+WITH\s+GENDER\s+(\w+)"
@@ -167,14 +160,12 @@ withSingleArrayOfBoneText = withFileInformationProcessed.select(
   regexp_extract_all(
     col('content'),
     lit(boneRegExp)
-  ).alias('boneText'),
-  col('event_time')
+  ).alias('boneText')
 )
 oneRowPerBoneText = withSingleArrayOfBoneText.select(
   col('filename'),
   col('gender'),
   explode(col('boneText')).alias('boneText'),
-  col('event_time')
 )
 
 boneNameRegExp = r"(?m)((A|AN)\s+)?(\w+)\s+BONE\s+OF\s+MEASUREMENTS"
@@ -187,7 +178,6 @@ oneRowPerBone = oneRowPerBoneText.select(
     col('boneText'),
     lit(boneMeasurementsRegExp)
   ).alias('measurements'),
-  col('event_time')
 )
 
 oneRowPerBoneMeasurementText = oneRowPerBone.select(
@@ -195,7 +185,6 @@ oneRowPerBoneMeasurementText = oneRowPerBone.select(
   col('gender'),
   col('bone'),
   explode(col('measurements')).alias('measurements'),
-  col('event_time')
 )
 
 measurementNameRegExp = r"(\w+)\s+=\s+\d*\.?\d+"
@@ -214,22 +203,17 @@ oneRowPerBoneMeasurement = oneRowPerBoneMeasurementText.select(
     measurementValueRegExp,
     1
   ).alias('measurement_value').cast(FloatType()),
-  col('event_time')
 )
 
 # Calculate the minimum difference atlas radiography against our radiography
-
-# broadcast marks a small datatable as small enough for broadcast joins
-oneRowPerAtlasBoneMeasurement = \
-    broadcast(oneRowPerAtlasBoneMeasurement)
-
-radiographyAndAtlasRadiographiesJoin = oneRowPerBoneMeasurement.join(
+def process_batch(batch_df, batch_id):
+  radiographyAndAtlasRadiographiesJoin = batch_df.join(
     oneRowPerAtlasBoneMeasurement,
     on=['gender', 'bone', 'measurement_name'],
     how="left"
   )
 
-withDifferences = radiographyAndAtlasRadiographiesJoin.select(
+  withDifferences = radiographyAndAtlasRadiographiesJoin.select(
     oneRowPerBoneMeasurement['filename'],
     oneRowPerBoneMeasurement['gender'],
     oneRowPerBoneMeasurement['bone'],
@@ -244,36 +228,34 @@ withDifferences = radiographyAndAtlasRadiographiesJoin.select(
         .alias('atlas_measurement_value'),
     abs((oneRowPerAtlasBoneMeasurement['measurement_value'] -
         oneRowPerBoneMeasurement['measurement_value'])) \
-        .alias('measurement_values_difference'),
-    col('event_time')
+          .alias('measurement_values_difference')
   )
 
-totalDifferences = withDifferences \
-    .groupBy('filename', 'atlas_age', window('event_time', '10 minutes')) \
+  totalDifferences = withDifferences \
+    .groupBy(['filename', 'atlas_age']) \
     .sum("measurement_values_difference")
+  
+  smallestDifferences = totalDifferences \
+    .groupBy(['filename']) \
+    .min("sum(measurement_values_difference)")
+  
+  withMinimumDifferences = totalDifferences \
+    .join(smallestDifferences, on='filename', how='left')
+  
+  finalAgesWithUnwantedColumns = withMinimumDifferences \
+    .filter(withMinimumDifferences['sum(measurement_values_difference)'] == \
+            withMinimumDifferences['min(sum(measurement_values_difference))'])
 
-# smallestDifferences = totalDifferences \
-#     .groupBy(['filename', 'event_time']) \
-#     .min("sum(measurement_values_difference)")
+  finalAges = finalAgesWithUnwantedColumns.select(
+    col('filename'),
+    col('atlas_age').alias('age')
+  )
 
-# withMinimumDifferences = totalDifferences \
-#     .join(smallestDifferences, on=['filename', 'event_time'], how='left')
+  finalAges.show(truncate=False)
 
-# finalAgesWithUnwantedColumns = withMinimumDifferences \
-#   .filter(withMinimumDifferences['sum(measurement_values_difference)'] == \
-#           withMinimumDifferences['min(sum(measurement_values_difference))'])
-
-# finalAges = finalAgesWithUnwantedColumns.select(
-#   col('filename'),
-#   col('atlas_age').alias('age')
-# )
-
-query = totalDifferences \
+query = oneRowPerBoneMeasurement \
           .writeStream \
-          .outputMode('append') \
-          .format('console') \
-          .option('truncate', 'false') \
-          .option('numRows', 600) \
+          .foreachBatch(process_batch) \
           .start()
 
 query.awaitTermination()
