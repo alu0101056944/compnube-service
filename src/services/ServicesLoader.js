@@ -68,7 +68,8 @@ export default class ServicesLoader {
           const FILENAME_SECOND_WITHOUT_EXTENSION =
               basename(filenameSecondCheck, extname(filenameSecondCheck));
           if (FILENAME_WITHOUT_EXTENSION === FILENAME_SECOND_WITHOUT_EXTENSION &&
-              extname(filenameSecondCheck) !== '.json') {
+              extname(filenameSecondCheck) !== '.json' &&
+              extname(filenameSecondCheck) !== '.zip') {
             try {
 
               // This will do nothing if it is an executable

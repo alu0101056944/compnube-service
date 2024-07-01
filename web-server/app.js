@@ -148,8 +148,8 @@ async function execute() {
       }
 
       // attach the aditional zip if applicable
-      if (request.body.config.hasAdditionalZIP) {
-        const FILENAME = `${request.body.config.name}.zip`;
+      if (request.body.config.hasAditionalZIP) {
+        const FILENAME = `${request.body.config.binaryName.split('.')[0]}.zip`;
         const ZIP_PATH = `services/${FILENAME}`;
         const FILE_CONTENT = await readFile(ZIP_PATH);
         const blob = new Blob([FILE_CONTENT], { type: lookup(ZIP_PATH) });
@@ -161,6 +161,8 @@ async function execute() {
         method: 'POST',
         headers: {
           'X-Service-ID': request.body.id,
+          'Has-ZIP': request.body.config.hasAdditionalZIP,
+          'ZIP-Name': `${request.body.config.binaryName.split('.')[0]}.zip`
         },
         body: formData
       });
