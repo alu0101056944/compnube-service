@@ -43,14 +43,24 @@ export default class ResultView {
   }
 
   toString() {
+    const STREAM_INPUT_FILES_SELECTOR = `
+        <form id='formStreamInputFilesSelector${this.#id}'
+          style='${this.#config.hasInputFileStreaming ?
+              'display: block;' : 'display: none;'
+        }'>
+          <input type="file" id="streamInputFilesSelector${this.#id}" multiple>
+          <button id="sendStream${this.#id}" style="width: 100%" disabled="true">
+              Send
+          </button>
+        </form>`;
     return `
         <div style="background-color: orange; margin-bottom: 5px;
               padding: 7px 0px 7px 0px; display: flex; flex-direction: row; flex-wrap: wrap;">
-          <div style="background-color: yellow; width: 50%">
+          <div style="background-color: yellow; width: 35%">
             <b>${this.#config.name}(${this.#id}): </b>
             <span id="executionState${this.#id}">\<no info\></span>
           </div>
-          <div id='terminateProcessDiv${this.#id}' style="width: 20%; background-color: red;">
+          <div id='terminateProcessDiv${this.#id}' style="width: 15%; background-color: red;">
             <button id='terminateButton${this.#id}' disabled="true">
               Stop process.
             </button>
@@ -58,11 +68,14 @@ export default class ResultView {
               Show terminal.
             </button>
           </div>
-          <div style="background-color: blue; width: 30%">
+          <div style="background-color: blue; width: 25%">
             <button id="downloadButton${this.#id}" disabled="true">
                 Download output files
             </button>
             <span id="hasBeenDownloaded${this.#id}"></span>
+          </div>
+          <div style="background-color: magenta; width: 25%">
+            ${STREAM_INPUT_FILES_SELECTOR}
           </div>
           <div id='terminal${this.#id}' style='display: none; background-color: black;
               width: 100%; height: 300px;'>

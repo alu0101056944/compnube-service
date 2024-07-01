@@ -52,6 +52,7 @@ export default class LaunchedServicesController {
         await this.#updateDownloadButtonAndSpan(idToAccumulatedUpdates[id], id);
         await this.#updateTerminateButton(idToAccumulatedUpdates[id], id);
         await this.#updateTerminalContent(idToAccumulatedUpdates[id], id);
+        await this.#updateStreamSendButton(idToAccumulatedUpdates[id], id);
       }
 
       await this.#setupTerminalButtons(allRun);
@@ -186,6 +187,15 @@ export default class LaunchedServicesController {
     } catch (error) {
       console.error('Error while fetching runs to setup terminal buttons: ' +
           error);
+    }
+  }
+
+  async #updateStreamSendButton(update, id) {
+    const buttonSendStream = document.querySelector(`#sendStream${id}`);
+    if (update.executionState === 'Executing') {
+      buttonSendStream.disabled = false;
+    } else {
+      buttonSendStream.disabled = true;
     }
   }
 

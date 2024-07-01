@@ -10,5 +10,7 @@
   "hostAddress": "10.6.130.168:8081",
   "binaryName": "main_parallel",
   "originAddress": "10.6.128.106:8080",
-  "hasAditionalZIP": "true"
+  "hasAditionalZIP": "true",
+  "hasInputFileStreaming": "false",
+  "relativeInputFileStreamingPath": ""
 }

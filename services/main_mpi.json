@@ -16,5 +16,7 @@
   "hostAddress": "10.6.128.162:8081",
   "binaryName": "main_mpi",
   "originAddress": "10.6.128.106:8080",
-  "hasAditionalZIP": "true"
+  "hasAditionalZIP": "true",
+  "hasInputFileStreaming": "false",
+  "relativeInputFileStreamingPath": ""
 }
