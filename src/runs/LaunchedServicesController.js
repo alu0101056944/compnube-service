@@ -42,15 +42,16 @@ export default class LaunchedServicesController {
       }, 2000);
 
       const response = await fetch('http://10.6.128.106:8080/getupdates/');
-      const idToObject = await response.json();
-      for (const id of Object.getOwnPropertyNames(idToObject)) {
+      const idToAccumulatedUpdates = await response.json();
+      for (const id of Object.getOwnPropertyNames(idToAccumulatedUpdates)) {
         const spanOfExecutionState =
             document.querySelector(`#executionState${id}`);
-        spanOfExecutionState.textContent = idToObject[id].executionState;
+        spanOfExecutionState.textContent =
+            idToAccumulatedUpdates[id].executionState;
 
-        await this.#updateDownloadButtonAndSpan(idToObject[id], id);
-        await this.#updateTerminateButton(id);
-        await this.#updateTerminalContent(idToObject[id], id);
+        await this.#updateDownloadButtonAndSpan(idToAccumulatedUpdates[id], id);
+        await this.#updateTerminateButton(idToAccumulatedUpdates[id], id);
+        await this.#updateTerminalContent(idToAccumulatedUpdates[id], id);
       }
 
       await this.#setupTerminalButtons(allRun);
@@ -124,17 +125,14 @@ export default class LaunchedServicesController {
     }
   }
 
-  async #updateTerminateButton(id) {
+  async #updateTerminateButton(update, id) {
     try {
-      const response = await fetch('http://10.6.128.106:8080/getupdates/');
-      const idToAccumulatedUpdates = await response.json();
-  
       const terminateButton = document.querySelector(`#terminateButton${id}`);
-      if (idToAccumulatedUpdates[id].executionState === 'Finished execution successfully' ||
-        idToAccumulatedUpdates[id].executionState === 'execution failed' ||
-        idToAccumulatedUpdates[id].executionState === 'Terminated by user') {
+      if (update.executionState === 'Finished execution successfully' ||
+          update.executionState === 'execution failed' ||
+          update.executionState === 'Terminated by user') {
         terminateButton.disabled = true;
-      } else if (idToAccumulatedUpdates[id].executionState === 'Executing') {
+      } else if (update.executionState === 'Executing') {
         terminateButton.disabled = false;
         const sendTerminateRequest = async () => {
           try {
