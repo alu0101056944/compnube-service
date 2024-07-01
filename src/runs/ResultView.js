@@ -66,7 +66,7 @@ export default class ResultView {
           </div>
           <div id='terminal${this.#id}' style='display: none; background-color: black;
               width: 100%; height: 300px;'>
-            <span id='terminalContent${this.#id}' style='color: white;'></span>
+            <pre  id='terminalContent${this.#id}' style='color: white;'></pre >
           </div>
         </div>
       `;

@@ -76,8 +76,10 @@ export default class ServiceConfiguratorController {
     // validate args
     const argsValidator = new ServiceArgumentsValidator(allArgValue,
       this.#activeConfig);
+
     // if all valid send json to server
     if (argsValidator.getInvalidArgs().length === 0) {
+
       // get values for cli args
       const cliArgs = {};
       Object.getOwnPropertyNames(this.#activeConfig.cliParams)
