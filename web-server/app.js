@@ -348,19 +348,21 @@ async function execute() {
     console.log('/download called');
 
     try {
-      const response2 =
-          await fetch(`http://${runInfo.config.hostAddress}/downloadoutput/`, {
-            method: 'GET',
-            headers: {
-              'X-Service-ID': request.body.id,
-            },
-          });
-      const files = await response2.blob();
 
       // tell host through server that it can delete the files now.
       const runsFile = await readFile('src/services/requestLaunchs.json');
       const runsFileJSON = JSON.parse(runsFile);
       const runInfo = runsFileJSON.launchs[request.body.id];
+
+      const response2 =
+      await fetch(`http://${runInfo.config.hostAddress}/downloadoutput/`, {
+        method: 'GET',
+        headers: {
+          'X-Service-ID': request.body.id,
+        },
+      });
+      const files = await response2.blob();
+
       const HOST_ADDRESS = `http://${runInfo.config.hostAddress}/deletefiles/`;
       const response3 = await fetch(HOST_ADDRESS, {
         method: 'POST',
