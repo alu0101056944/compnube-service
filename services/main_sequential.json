@@ -9,5 +9,6 @@
   "acceptInputFiles": "true",
   "hostAddress": "10.6.130.168:8081",
   "binaryName": "main_sequential",
-  "originAddress": "10.6.128.106:8080"
+  "originAddress": "10.6.128.106:8080",
+  "hasAditionalZIP": "true"
 }

@@ -132,17 +132,28 @@ async function execute() {
       const BINARY_PATH = config.servicesPath +
           request.body.config.binaryName;
       const binaryFile = await readFile(BINARY_PATH);
-      const binaryFileBlob = new Blob([binaryFile], { type: lookup(BINARY_PATH) });
+      const binaryFileBlob =
+          new Blob([binaryFile], { type: lookup(BINARY_PATH) });
       formData.append('files', binaryFileBlob, request.body.config.binaryName);
 
       // attach the input files
-      const allFileName = await fs.readdir(config.fileInputsPath + request.body.id)
+      const allFileName =
+          await fs.readdir(config.fileInputsPath + request.body.id);
       for (const fileName of allFileName) {
         const FILE_PATH =
             config.fileInputsPath + request.body.id + '/' + `${fileName}`;
         const FILE_CONTENT = readFileSync(FILE_PATH);
-        const BLOB = new Blob([FILE_CONTENT], {type: lookup(FILE_PATH)});
-        formData.append('files', BLOB, fileName);
+        const blob = new Blob([FILE_CONTENT], {type: lookup(FILE_PATH)});
+        formData.append('files', blob, fileName);
+      }
+
+      // attach the aditional zip if applicable
+      if (request.body.config.hasAdditionalZIP) {
+        const FILENAME = `${request.body.config.name}.zip`;
+        const ZIP_PATH = `services/${FILENAME}`;
+        const FILE_CONTENT = await readFile(ZIP_PATH);
+        const blob = new Blob([FILE_CONTENT], { type: lookup(ZIP_PATH) });
+        formData.append('files', blob, FILENAME);
       }
 
       const response2 = await fetch('http://' + request.body.config.hostAddress +
