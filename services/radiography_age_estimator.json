@@ -2,7 +2,7 @@
   "name": "Estimate radiography ages",
   "description": "Stream files from a directory with radiography description files in a DSL to check if they are closer to 17, 18.5 or 19 years of age.",
   "params": [],
-  "cli": "ls",
+  "cli": "spark-submit {binary} 2>pp",
   "cliParams": {},
   "acceptInputFiles": "false",
   "hostAddress": "10.6.130.168:8081",
