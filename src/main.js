@@ -29,7 +29,7 @@ async function main() {
     const serviceConfiguratorController =
         new ServiceConfiguratorController(allServiceConfig);
   } catch (error) {
-    console.error('Error while fetching services. ' + error);
+    console.error('Error when getting the services list: ' + error);
   }
 
   // Check runs first thing after entering the webpage.

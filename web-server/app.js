@@ -153,20 +153,12 @@ async function execute() {
         },
         body: formData
       });
-
-      if (response2.ok) {
-        const result = await response2.text();
-        console.log('Response ok: ' + result);
-      } else {
-        const result = await response2.text();
-        console.log('Upload to host failed: ' + result);
-      }
-
     } catch (error) {
-      console.error('Execution failure: could not connect with the host' +
-        ' or could not upload the input files. Service run: ' +
-        request.body.config.name + '(' + request.body.id + ') ' +
-        ' . Marking it\'s ids as execution failed. Error: ', error);
+      console.error('Error when sending execution request for ' +
+        request.body.config.name + '(' + request.body.id + ').' +
+        'Marking it\'s ids as execution failed. Error: ', error);
+
+      // push update to updates file
       const updatesFile =
           await readFile(config.requestUpdatesPath + request.body.id + '.json',
               'utf8');
@@ -176,9 +168,6 @@ async function execute() {
       });
       await writeFile(config.requestUpdatesPath + request.body.id + '.json',
           JSON.stringify(updatesFileJSON, null, 2));
-      
-      response.send('Failed to send the service run to the Host. ' +
-          'Unable to connect.');
     }
   });
 
@@ -244,6 +233,9 @@ async function execute() {
         if (update.hasDownloadedOutputFiles) {
           executionUpdates[run.id].hasDownloadedOutputFiles =
               update.hasDownloadedOutputFiles;
+        }
+        if (update.stdout) { // just get the latest stdout
+          executionUpdates[run.id].stdout = update.stdout;
         }
       }
 
@@ -313,7 +305,10 @@ async function execute() {
     const UPDATE_PATH = `${config.requestUpdatesPath}/${update.id}.json`;
     const updateFile = await readFile(UPDATE_PATH, 'utf8');
     const updateFileJSON = JSON.parse(updateFile);
-    updateFileJSON.updates.push({ executionState: update.executionState });
+    updateFileJSON.updates.push({
+      executionState: update.executionState,
+      stdout: update.stdout,
+    });
     await writeFile(UPDATE_PATH, JSON.stringify(updateFileJSON, null, 2));
     response.send('OK');
   });
@@ -330,7 +325,7 @@ async function execute() {
       if (allUpdateJSON.updates[i].hasDownloadedOutputFiles) {
         hasDownloadedOutputFiles = true;
       }
-      const SUCESS_STRING = "Finished execution sucessfully";
+      const SUCESS_STRING = "Finished execution successfully";
       if (allUpdateJSON.updates[i].executionState === SUCESS_STRING) {
         hasFinishedExecutionSucessfully = true;
       }
@@ -351,46 +346,52 @@ async function execute() {
 
   application.post('/download', async (request, response) => {
     console.log('/download called');
-    const runsFile = await readFile('src/services/requestLaunchs.json');
-    const runsFileJSON = JSON.parse(runsFile);
-    const runInfo = runsFileJSON.launchs[request.body.id];
-    const response2 =
-        await fetch(`http://${runInfo.config.hostAddress}/downloadoutput/`, {
-          method: 'GET',
-          headers: {
-            'X-Service-ID': request.body.id,
-          },
-        });
-    const files = await response2.blob();
 
-    // tell host through server that it can delete the files now.
-    const HOST_ADDRESS = `http://${runInfo.config.hostAddress}/deletefiles/`;
-    const response3 = await fetch(HOST_ADDRESS, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(runInfo, null, 2)
-    });
+    try {
+      const response2 =
+          await fetch(`http://${runInfo.config.hostAddress}/downloadoutput/`, {
+            method: 'GET',
+            headers: {
+              'X-Service-ID': request.body.id,
+            },
+          });
+      const files = await response2.blob();
 
-    if (response3.ok) {
-      const UPDATES_PATH = config.requestUpdatesPath + runInfo.id + '.json';
-      const allUpdate = await readFile(UPDATES_PATH, 'utf8');
-      const allUpdateJSON = JSON.parse(allUpdate);
-      allUpdateJSON.updates.push({ hasDownloadedOutputFiles: true });
-      await writeFile(UPDATES_PATH,
-          JSON.stringify(allUpdateJSON, null, 2));
+      // tell host through server that it can delete the files now.
+      const runsFile = await readFile('src/services/requestLaunchs.json');
+      const runsFileJSON = JSON.parse(runsFile);
+      const runInfo = runsFileJSON.launchs[request.body.id];
+      const HOST_ADDRESS = `http://${runInfo.config.hostAddress}/deletefiles/`;
+      const response3 = await fetch(HOST_ADDRESS, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(runInfo, null, 2)
+      });
 
-      console.log('Delete files sent response OK, disabling' +
-          ' download button.');
-    } else {
-      console.log('Failed to delete files. Files remain available.');
+      if (response3.ok) {
+
+        // push update to updates file
+        const UPDATES_PATH = config.requestUpdatesPath + runInfo.id + '.json';
+        const allUpdate = await readFile(UPDATES_PATH, 'utf8');
+        const allUpdateJSON = JSON.parse(allUpdate);
+        allUpdateJSON.updates.push({ hasDownloadedOutputFiles: true });
+        await writeFile(UPDATES_PATH,
+            JSON.stringify(allUpdateJSON, null, 2));
+      } else {
+        console.log('Failed to delete the files on host. Files will remain');
+        throw new Error('/download request answered with: ' + response3.text());
+      }
+
+      // Required for transfering the same blob to the client
+      response.type(files.type);
+      const buf = await files.arrayBuffer();
+      response.send(Buffer.from(buf));
+    } catch (error) {
+      console.error('Error when downloading files from host for ' +
+          request.body.id + ': ' + error);
     }
-
-    // to resend the same blob
-    response.type(files.type);
-    const buf = await files.arrayBuffer();
-    response.send(Buffer.from(buf));
   });
 
   // called at the same time as /execute
@@ -413,13 +414,17 @@ async function execute() {
     const jsonWithRuns = JSON.parse(fileWithRuns);
     const HOST_ADDRESS = jsonWithRuns.launchs[ID].config.hostAddress;
 
-    const response2 = await fetch(`http://${HOST_ADDRESS}/terminaterun`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ id: ID })
-    });
+    try {
+      const response2 = await fetch(`http://${HOST_ADDRESS}/terminaterun`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id: ID })
+      });
+    } catch (error) {
+      console.error('Attempt at killing ' + ID + 'failed: ' + error);
+    }
   });
 }
 

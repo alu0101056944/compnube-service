@@ -60,7 +60,7 @@ export default class LaunchedServicesController {
   };
 
   async #updateDownloadButtonAndSpan(update, id) {
-    if (update.executionState === 'Finished execution sucessfully') {
+    if (update.executionState === 'Finished execution successfully') {
       const response = await fetch('http://10.6.128.106:8080/getavailablefiles/',
         {
           method: 'POST',
@@ -130,7 +130,7 @@ export default class LaunchedServicesController {
       const idToAccumulatedUpdates = await response.json();
   
       const terminateButton = document.querySelector(`#terminateButton${id}`);
-      if (idToAccumulatedUpdates[id].executionState === 'Finished execution sucessfully' ||
+      if (idToAccumulatedUpdates[id].executionState === 'Finished execution successfully' ||
         idToAccumulatedUpdates[id].executionState === 'execution failed' ||
         idToAccumulatedUpdates[id].executionState === 'Terminated by user') {
         terminateButton.disabled = true;

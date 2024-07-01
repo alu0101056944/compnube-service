@@ -38,6 +38,7 @@ export default class ServiceConfiguratorController {
     // select button color logic and update divSelector
     for (const config of allValidConfig) {
       const SERVICE_NAME_SPACELESS = config.name.replace(/\s/g, '');
+
       const buttonId = `#select${SERVICE_NAME_SPACELESS}`;
       const selectButton = document.querySelector(buttonId);
       selectButton.addEventListener('click', async () => {
@@ -52,57 +53,61 @@ export default class ServiceConfiguratorController {
 
         divSelector.innerHTML = new ServiceConfiguratorView(config).toString();
 
+        const buttonSend = document.querySelector('#sendService');
+        buttonSend.addEventListener('click', async () => await this.#sendRequest());
+
         this.#activeConfig = config;
-        this.#sendArguments();
       });
       allSelectButton.push(selectButton);
     }
   }
 
-  async #sendArguments() {
-    const sendRequest = async () => {
-      // get textfield arg values
-      const allArgValue = [];
-      const ARG_AMOUNT = this.#activeConfig.params.length;
+  // event listener for the send button
+  async #sendRequest() {
+
+    // get textfield arg values
+    const allArgValue = [];
+    const ARG_AMOUNT = this.#activeConfig.params.length;
+    for (let i = 0; i < ARG_AMOUNT; ++i) {
+      const textField = document.querySelector(`#argTextfield${i}`);
+      allArgValue.push(textField.value);
+    }
+
+    // validate args
+    const argsValidator = new ServiceArgumentsValidator(allArgValue,
+      this.#activeConfig);
+    // if all valid send json to server
+    if (argsValidator.getInvalidArgs().length === 0) {
+      // get values for cli args
+      const cliArgs = {};
+      Object.getOwnPropertyNames(this.#activeConfig.cliParams)
+          .forEach((cliParam, i) => {
+            const textField = document.querySelector(`#cliArgTextfield${i}`);
+            cliArgs[cliParam] = textField.value;    
+          });
+
+      const jsonToSend = { args: {}, cliArgs };
       for (let i = 0; i < ARG_AMOUNT; ++i) {
-        const textField = document.querySelector(`#argTextfield${i}`);
-        allArgValue.push(textField.value);
+        jsonToSend.args[this.#activeConfig.params[i].name] = allArgValue[i];
       }
+      jsonToSend.config = this.#activeConfig;
 
-      // validate args
-      const argsValidator = new ServiceArgumentsValidator(allArgValue,
-        this.#activeConfig);
-      // if all valid send json to server
-      if (argsValidator.getInvalidArgs().length === 0) {
-        // get values for cli args
-        const cliArgs = {};
-        Object.getOwnPropertyNames(this.#activeConfig.cliParams)
-            .forEach((cliParam, i) => {
-              const textField = document.querySelector(`#cliArgTextfield${i}`);
-              cliArgs[cliParam] = textField.value;    
-            });
+      const buttonSend = document.querySelector('#sendService');
+      buttonSend.disabled = true;
+      setTimeout(() => {
+        buttonSend.disabled = false
+      }, 2000);
 
-        const jsonToSend = { args: {}, cliArgs };
-        for (let i = 0; i < ARG_AMOUNT; ++i) {
-          jsonToSend.args[this.#activeConfig.params[i].name] = allArgValue[i];
-        }
-        jsonToSend.config = this.#activeConfig;
-
+      try {
         // get new service request id
-        const request = await fetch('http://10.6.128.106:8080/getnewservicerequestid/');
+        const ADDRESS = 'http://10.6.128.106:8080/getnewservicerequestid/';
+        const request = await fetch(ADDRESS);
         const json = await request.json();
         jsonToSend.id = json.newId;
 
-        // I call this here to have the received id available as argument
         if (this.#activeConfig.acceptInputFiles === 'true') {
           this.#sendInputFiles(jsonToSend.id);
         }
-
-        const buttonSend = document.querySelector('#sendService');
-        buttonSend.disabled = true;
-        setTimeout(() => {
-          buttonSend.disabled = false
-        }, 2000);
 
         const body = JSON.stringify(jsonToSend, null, 2)
         try {
@@ -114,20 +119,20 @@ export default class ServiceConfiguratorController {
             body,
           });
         } catch (error) {
-          console.error('Error while executing the service request: ' + error);
+          console.error('Error while sending the service execution request: ' +
+              error);
         }
-      } else {
-        console.log('Invalid arguments, please check the formatting. ' +
-            'These are valid: ' +
-            argsValidator.getValidArgs().map((arg) => arg.name).join(' ') +
-            '. ' + 'These are invalid: ' +
-            argsValidator.getInvalidArgs().map((arg) => arg.name).join(' ')
-        );
+      } catch (error) {
+        console.error('Failed to get new service run id: ' + error);
       }
-      buttonSend.addEventListener('click', sendRequest);
-    };
-    const buttonSend = document.querySelector('#sendService');
-    buttonSend.addEventListener('click', sendRequest);
+    } else {
+      console.log('Invalid arguments, please check the formatting. ' +
+          'These are valid: ' +
+          argsValidator.getValidArgs().map((arg) => arg.name).join(' ') +
+          '. ' + 'These are invalid: ' +
+          argsValidator.getInvalidArgs().map((arg) => arg.name).join(' ')
+      );
+    }
   }
 
   async #sendInputFiles(id) {
@@ -138,25 +143,13 @@ export default class ServiceConfiguratorController {
       formData.append('files', files[i]);
     }
 
-    try {
-      const response = await fetch('http://10.6.128.106:8080/pushinputfiles/', {
-        method: 'POST',
-        headers: {
-          'X-Service-ID': id
-        },
-        body: formData
-      });
-      
-      if (response.ok) {
-        const result = await response.text();
-        console.log(result);
-      } else {
-        console.log('Upload failed');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      console.log('An error occurred');
-    }
+    await fetch('http://10.6.128.106:8080/pushinputfiles/', {
+      method: 'POST',
+      headers: {
+        'X-Service-ID': id
+      },
+      body: formData
+    });
   }
 
   getSelectedButton() {
