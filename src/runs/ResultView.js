@@ -45,7 +45,7 @@ export default class ResultView {
   toString() {
     const STREAM_INPUT_FILES_SELECTOR = `
         <form id='formStreamInputFilesSelector${this.#id}'
-          style='${this.#config.hasInputFileStreaming ?
+          style='${this.#config.hasInputFileStreaming === 'true' ?
               'display: block;' : 'display: none;'
         }'>
           <input type="file" id="streamInputFilesSelector${this.#id}"
