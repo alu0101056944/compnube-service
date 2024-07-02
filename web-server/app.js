@@ -148,7 +148,7 @@ async function execute() {
       }
 
       // attach the aditional zip if applicable
-      if (request.body.config.hasAditionalZIP) {
+      if (request.body.config.hasAditionalZIP === 'true') {
         const FILENAME = `${request.body.config.binaryName.split('.')[0]}.zip`;
         const ZIP_PATH = `services/${FILENAME}`;
         const FILE_CONTENT = await readFile(ZIP_PATH);
