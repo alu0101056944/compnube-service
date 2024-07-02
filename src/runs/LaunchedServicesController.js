@@ -221,7 +221,7 @@ export default class LaunchedServicesController {
 
   async #setupStreamFilePicker(allRun) {
     for (const run of Object.values(allRun.launchs)) {
-      if (run.config.hasInputFileStreaming) {
+      if (run.config.hasInputFileStreaming === 'true') {
         const sendStreamOfFiles = async () => {
           const SELECTOR = `#streamInputFilesSelector${run.id}`;
           const streamFileInput = document.querySelector(SELECTOR);
