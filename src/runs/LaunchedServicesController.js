@@ -53,9 +53,11 @@ export default class LaunchedServicesController {
         await this.#updateTerminateButton(idToAccumulatedUpdates[id], id);
         await this.#updateTerminalContent(idToAccumulatedUpdates[id], id);
         await this.#updateStreamSendButton(idToAccumulatedUpdates[id], id);
+        await this.#updateStreamFilePicker(idToAccumulatedUpdates[id], id);
       }
 
       await this.#setupTerminalButtons(allRun);
+      await this.#setupStreamFilePicker(allRun);
     } catch (error) {
       console.error('Error while updating: ' + error);
     }
@@ -185,8 +187,16 @@ export default class LaunchedServicesController {
         showTerminalButton.addEventListener('click', toggleTerminalRendering);
       });
     } catch (error) {
-      console.error('Error while fetching runs to setup terminal buttons: ' +
-          error);
+      console.error('Error while setting up terminal buttons: ' + error);
+    }
+  }
+
+  async #updateTerminalContent(update, id) {
+    const terminalContent = document.querySelector(`#terminalContent${id}`);
+    if (update.stdout) {
+      terminalContent.textContent = update.stdout;
+    } else {
+      terminalContent.textContent = 'No console output received.';
     }
   }
 
@@ -199,12 +209,54 @@ export default class LaunchedServicesController {
     }
   }
 
-  async #updateTerminalContent(update, id) {
-    const terminalContent = document.querySelector(`#terminalContent${id}`);
-    if (update.stdout) {
-      terminalContent.textContent = update.stdout;
+  async #updateStreamFilePicker(update, id) {
+    const streamInputFilesPicker =
+        document.querySelector(`#streamInputFilesSelector${id}`);
+    if (update.executionState === 'Executing') {
+      streamInputFilesPicker.disabled = false;
     } else {
-      terminalContent.textContent = 'No console output received.';
+      streamInputFilesPicker.disabled = true;
+    }
+  }
+
+  async #setupStreamFilePicker(allRun) {
+    for (const run of Object.values(allRun.launchs)) {
+      if (run.config.hasInputFileStreaming) {
+        const sendStreamOfFiles = async () => {
+          const SELECTOR = `#streamInputFilesSelector${run.id}`;
+          const streamFileInput = document.querySelector(SELECTOR);
+          const files = streamFileInput.files;
+          const formData = new FormData();
+          for (let i = 0; i < files.length; i++) {
+            formData.append('files', files[i]);
+          }
+
+          const buttonSendStream = document.querySelector(`#sendStream${run.id}`);
+          buttonSendStream.disabled = true;
+          setTimeout(() => {
+            buttonSendStream.disabled = false
+          }, 2000);
+
+          try {
+            await fetch(`http://${run.config.hostAddress}/pushstreaminputfiles`, {
+              method: 'POST',
+              headers: {
+                'X-Service-ID': run.id,
+                'Stream-Destination': run.config.relativeInputFileStreamingPath,
+              },
+              body: formData
+            });
+
+
+          } catch (error) {
+            console.error('Error when sending stream inputs for ' + run.id +
+                '. Error: ' + error);
+          }
+        }
+
+        const buttonSendStream = document.querySelector(`#sendStream${run.id}`);
+        buttonSendStream.addEventListener('click', sendStreamOfFiles);
+      }
     }
   }
 }

@@ -48,8 +48,10 @@ export default class ResultView {
           style='${this.#config.hasInputFileStreaming ?
               'display: block;' : 'display: none;'
         }'>
-          <input type="file" id="streamInputFilesSelector${this.#id}" multiple>
-          <button id="sendStream${this.#id}" style="width: 100%" disabled="true">
+          <input type="file" id="streamInputFilesSelector${this.#id}"
+              disabled="true" multiple>
+          <button type="button" id="sendStream${this.#id}" style="width: 100%"
+                disabled="true">
               Send
           </button>
         </form>`;
@@ -79,7 +81,9 @@ export default class ResultView {
           </div>
           <div id='terminal${this.#id}' style='display: none; background-color: black;
               width: 100%; height: 300px;'>
-            <pre  id='terminalContent${this.#id}' style='color: white;'></pre >
+            <pre id='terminalContent${this.#id}' style='color: white;
+                overflow: scroll;'>
+            </pre >
           </div>
         </div>
       `;

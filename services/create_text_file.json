@@ -11,7 +11,7 @@
   "hostAddress": "10.6.128.162:8081",
   "binaryName": "create_text_file.bash",
   "originAddress": "10.6.128.106:8080",
-  "hasAditionalZIP": "true",
+  "hasAditionalZIP": "false",
   "hasInputFileStreaming": "false",
   "relativeInputFileStreamingPath": ""
 }
