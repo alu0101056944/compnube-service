@@ -70,13 +70,13 @@ export default class ResultView {
               Show terminal.
             </button>
           </div>
-          <div style="background-color: blue; width: 25%">
+          <div id='downloadContainer${this.#id}' style="background-color: blue; width: 25%">
             <button id="downloadButton${this.#id}" disabled="true">
                 Download output files
             </button>
             <span id="hasBeenDownloaded${this.#id}"></span>
           </div>
-          <div style="background-color: magenta; width: 25%">
+          <div id="filePickerDiv${this.#id}" style="background-color: magenta; width: 25%">
             ${STREAM_INPUT_FILES_SELECTOR}
           </div>
           <div id='terminal${this.#id}' style='display: none; background-color: black;
@@ -84,6 +84,30 @@ export default class ResultView {
             <pre id='terminalContent${this.#id}' style='color: white;
                 overflow: scroll;'>
             </pre >
+          </div>
+          <div style='background-color: BlueViolet; width: 100%;'>
+            <bold>Parameters:</bold>
+            <span>
+              ${
+                this.#config.params.length > 0 ?
+                    this.#config.params
+                    .map(param => `${param.name} : ${param.type}`)
+                    .join(', ')
+                    :
+                    '<i>none</i>'
+              }
+            </span>
+          </div>
+          <div style='background-color: BlueViolet; width: 100%;'>
+            <bold>CLI Parameters:</bold>
+            <span>
+              ${
+                Object.getOwnPropertyNames(this.#config.cliParams).length > 0 ?
+                    Object.getOwnPropertyNames(this.#config.cliParams).join(', ')
+                    :
+                    '<i>none</i>'
+              }
+            </span>
           </div>
         </div>
       `;

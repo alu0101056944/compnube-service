@@ -46,8 +46,15 @@ export default class LaunchedServicesController {
       for (const id of Object.getOwnPropertyNames(idToAccumulatedUpdates)) {
         const spanOfExecutionState =
             document.querySelector(`#executionState${id}`);
-        spanOfExecutionState.textContent =
-            idToAccumulatedUpdates[id].executionState;
+        const TEXT = idToAccumulatedUpdates[id].executionState;
+        spanOfExecutionState.textContent = TEXT;
+        if (TEXT === 'Finished execution successfully') {
+          spanOfExecutionState.style.color = 'green';
+        } else if (TEXT === 'execution failed') {
+          spanOfExecutionState.style.color = 'red';
+        } else {
+          spanOfExecutionState.style.color = 'Coral';
+        }
 
         await this.#updateDownloadButtonAndSpan(idToAccumulatedUpdates[id], id);
         await this.#updateTerminateButton(idToAccumulatedUpdates[id], id);
@@ -256,6 +263,12 @@ export default class LaunchedServicesController {
 
         const buttonSendStream = document.querySelector(`#sendStream${run.id}`);
         buttonSendStream.addEventListener('click', sendStreamOfFiles);
+      } else {
+        const filePicker = document.querySelector(`#filePickerDiv${run.id}`);
+        filePicker.remove();
+        const downloadContainer =
+            document.querySelector(`#downloadContainer${run.id}`);
+        downloadContainer.style.width = '50%';
       }
     }
   }

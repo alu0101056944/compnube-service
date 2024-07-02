@@ -1,11 +1,15 @@
 {
   "name": "parallel openmp cpp oil image algorithm",
   "description": "Given an image, process it to get an oily version.",
-  "params": [],
-  "cli": "{binary} <inputImagePath>",
-  "cliParams": {
-    "inputImagePath": "foo"
-  },
+  "params": [
+    {
+      "name": "inputImagePath",
+      "description": "path to the image to process",
+      "type": "string"
+    }
+  ],
+  "cli": "{binary}",
+  "cliParams": {},
   "acceptInputFiles": "true",
   "hostAddress": "10.6.130.168:8081",
   "binaryName": "main_parallel",
