@@ -250,6 +250,15 @@ async function execute() {
         if (update.stdout) { // just get the latest stdout
           executionUpdates[run.id].stdout = update.stdout;
         }
+        if (update.maxCpuLoad) {
+          executionUpdates[run.id].maxCpuLoad = update.maxCpuLoad ?? 'unknown';
+        }
+        if (update.avgCpuLoad) {
+          executionUpdates[run.id].avgCpuLoad = update.avgCpuLoad ?? 'unknown';
+        }
+        if (update.execTime) {
+          executionUpdates[run.id].execTime = update.execTime ?? 'unknown';
+        }
       }
 
       if (executionUpdates[run.id].executionState === 'Job created, execution pending' ||
@@ -321,6 +330,9 @@ async function execute() {
     updateFileJSON.updates.push({
       executionState: update.executionState,
       stdout: update.stdout,
+      maxCpuLoad: update.maxCpuLoad,
+      avgCpuLoad: update.avgCpuLoad,
+      execTime: update.execTime,
     });
     await writeFile(UPDATE_PATH, JSON.stringify(updateFileJSON, null, 2));
     response.send('OK');

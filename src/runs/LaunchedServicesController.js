@@ -61,6 +61,7 @@ export default class LaunchedServicesController {
         await this.#updateTerminalContent(idToAccumulatedUpdates[id], id);
         await this.#updateStreamSendButton(idToAccumulatedUpdates[id], id);
         await this.#updateStreamFilePicker(idToAccumulatedUpdates[id], id);
+        await this.#updatePerformanceSpans(idToAccumulatedUpdates[id], id);
       }
 
       await this.#setupTerminalButtons(allRun);
@@ -224,6 +225,15 @@ export default class LaunchedServicesController {
     } else {
       streamInputFilesPicker.disabled = true;
     }
+  }
+
+  async #updatePerformanceSpans(update, id) {
+    const execTimeSpan = document.querySelector(`#execTime${id}`);
+    execTimeSpan.textContent = update.execTime;
+    const averageCPUSpan = document.querySelector(`#avgCPULoad${id}`);
+    averageCPUSpan.textContent = update.avgCpuLoad;
+    const maxCPUSpan = document.querySelector(`#maxCPULoad${id}`);
+    maxCPUSpan.textContent = update.maxCpuLoad;
   }
 
   async #setupStreamFilePicker(allRun) {

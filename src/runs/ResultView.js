@@ -58,11 +58,11 @@ export default class ResultView {
     return `
         <div style="background-color: orange; margin-bottom: 5px;
               padding: 7px 0px 7px 0px; display: flex; flex-direction: row; flex-wrap: wrap;">
-          <div style="background-color: yellow; width: 35%">
+          <div style="width: 35%">
             <b>${this.#config.name}(${this.#id}): </b>
             <span id="executionState${this.#id}">\<no info\></span>
           </div>
-          <div id='terminateProcessDiv${this.#id}' style="width: 15%; background-color: red;">
+          <div id='terminateProcessDiv${this.#id}' style="width: 15%;">
             <button id='terminateButton${this.#id}' disabled="true">
               Stop process.
             </button>
@@ -70,22 +70,16 @@ export default class ResultView {
               Show terminal.
             </button>
           </div>
-          <div id='downloadContainer${this.#id}' style="background-color: blue; width: 25%">
+          <div id='downloadContainer${this.#id}' style="width: 25%">
             <button id="downloadButton${this.#id}" disabled="true">
                 Download output files
             </button>
             <span id="hasBeenDownloaded${this.#id}"></span>
           </div>
-          <div id="filePickerDiv${this.#id}" style="background-color: magenta; width: 25%">
+          <div id="filePickerDiv${this.#id}" style="width: 25%">
             ${STREAM_INPUT_FILES_SELECTOR}
           </div>
-          <div id='terminal${this.#id}' style='display: none; background-color: black;
-              width: 100%; height: 300px;'>
-            <pre id='terminalContent${this.#id}' style='color: white;
-                overflow: scroll;'>
-            </pre >
-          </div>
-          <div style='background-color: BlueViolet; width: 100%;'>
+          <div style='width: 100%;'>
             <bold>Parameters:</bold>
             <span>
               ${
@@ -98,7 +92,7 @@ export default class ResultView {
               }
             </span>
           </div>
-          <div style='background-color: BlueViolet; width: 100%;'>
+          <div style='width: 100%;'>
             <bold>CLI Parameters:</bold>
             <span>
               ${
@@ -108,6 +102,22 @@ export default class ResultView {
                     '<i>none</i>'
               }
             </span>
+          </div>
+          <div style='width: 100%;'>
+            <bold>Execution time (seconds): </bold>
+            <span id='execTime${this.#id}'></span>
+            <br>
+            <bold>avg CPU load: </bold>
+            <span id='avgCPULoad${this.#id}'></span>
+            <br>
+            <bold>max CPU load: </bold>
+            <span id='maxCPULoad${this.#id}'></span>
+          </div>
+          <div id='terminal${this.#id}' style='display: none; background-color: black;
+              width: 100%; height: 300px;'>
+            <pre id='terminalContent${this.#id}' style='color: white;
+                overflow: scroll;'>
+            </pre >
           </div>
         </div>
       `;
