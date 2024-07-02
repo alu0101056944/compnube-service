@@ -161,7 +161,7 @@ async function execute() {
         method: 'POST',
         headers: {
           'X-Service-ID': request.body.id,
-          'Has-ZIP': request.body.config.hasAdditionalZIP,
+          'Has-ZIP': request.body.config.hasAditionalZIP,
           'ZIP-Name': `${request.body.config.binaryName.split('.')[0]}.zip`
         },
         body: formData
