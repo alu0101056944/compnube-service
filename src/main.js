@@ -17,6 +17,7 @@ import ServiceConfiguratorController from './services/ServiceConfiguratorControl
 import LaunchedServicesView from './runs/LaunchedServicesView.js';
 import LaunchedServicesController from './runs/LaunchedServicesController.js';
 import ResultView from './runs/ResultView.js';
+import RecoverController from './RecoverController.js';
 
 async function main() {
   try {
@@ -47,6 +48,8 @@ async function main() {
   } catch (error) {
     console.error('Error while fetching runs: ' + error);
   }
+
+  const recoverController = new RecoverController();
 }
 
 main();
